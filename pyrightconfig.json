@@ -1,0 +1,9 @@
+{
+  "include": [
+    "scripts"
+  ],
+  "pythonVersion": "3.9",
+  "typeCheckingMode": "strict",
+  "reportMissingTypeStubs": false
+}
+

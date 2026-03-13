@@ -1,0 +1,59 @@
+# Climate Closet
+
+Climate Closet is an iOS SwiftUI weather app inspired by Apple's Weather experience, with a built-in wardrobe journal and planner. It helps track what you wore for specific temperatures, assign clothing to calendar days, and import catalog items from supported storefront URLs on a best-effort basis.
+
+## What it does
+
+- Live weather forecasts powered by Open-Meteo with current, hourly, and daily views
+- Wardrobe management for every clothing item in your closet
+- Day-by-day outfit assignment with temperature and condition logging
+- Weather-aware outfit recommendations based on your closet and what you have worn before
+- Clothing import presets for H&M, Levi's, Banana Republic, and J.Crew, plus best-effort imports from arbitrary URLs
+- Local-first persistence with a ports-and-adapters architecture that keeps the core testable
+
+## Project layout
+
+- `ClimateCloset/`: SwiftUI app target
+- `ClimateClosetTests/`: unit tests for pure domain and parsing logic
+- `ClimateClosetIntegrationTests/`: adapter-level integration tests
+- `docs/`: user and engineering documentation
+- `scripts/`: small typed developer tooling covered by `pyright`
+
+## Requirements
+
+- Xcode 26.3 or newer
+- iOS Simulator runtime
+- Python 3.9+ for `pyright`
+
+## Local setup
+
+```bash
+cd /Users/raelldottin/Documents/Personal/climate-closet-ios
+python3 -m venv .venv
+. .venv/bin/activate
+python -m pip install --upgrade pip
+python -m pip install -r requirements-dev.txt
+```
+
+## Verification
+
+```bash
+make verify-layout
+make lint-python
+make lint-swift
+make test
+```
+
+`make test` runs both the unit and integration test bundles through the shared `ClimateCloset` scheme.
+
+## Design notes
+
+- The app follows the unit-testing guidance from *Unit Testing: Principles, Practices, and Patterns* by keeping the domain logic pure, pushing I/O to adapters, and reserving slower tests for repository integration.
+- The default experience works in the simulator with signing disabled. To run on a physical device, open the project in Xcode and choose your development team.
+
+## Documentation
+
+- [`docs/USER_GUIDE.md`](/Users/raelldottin/Documents/Personal/climate-closet-ios/docs/USER_GUIDE.md)
+- [`docs/ARCHITECTURE.md`](/Users/raelldottin/Documents/Personal/climate-closet-ios/docs/ARCHITECTURE.md)
+- [`docs/TESTING_STRATEGY.md`](/Users/raelldottin/Documents/Personal/climate-closet-ios/docs/TESTING_STRATEGY.md)
+
