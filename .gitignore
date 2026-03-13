@@ -7,4 +7,4 @@ DerivedData/
 *.xcworkspace/xcuserdata/
 *.xcodeproj/xcuserdata/
 *.xcresult
-
+Config/Local.xcconfig

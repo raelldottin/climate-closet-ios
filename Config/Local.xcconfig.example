@@ -1,0 +1,5 @@
+// Optional local-only overrides for device testing.
+// Create Config/Local.xcconfig on your machine and place private values there.
+//
+// Example:
+// DEVELOPMENT_TEAM = ABCDE12345

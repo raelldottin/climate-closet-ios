@@ -47,6 +47,10 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements-dev.txt
 ```
 
+## Local signing
+
+Device-signing overrides live in the gitignored `Config/Local.xcconfig` file so personal team identifiers never need to enter source control. A placeholder is included in `Config/Local.xcconfig.example`, and the committed `Config/App.xcconfig` loads local overrides when present.
+
 ## Verification
 
 ```bash
@@ -63,7 +67,7 @@ make test
 - The app follows the unit-testing guidance from *Unit Testing: Principles, Practices, and Patterns* by keeping the domain logic pure, pushing I/O to adapters, and reserving slower tests for repository integration.
 - The app icon and launch screen share the in-app atmospheric palette, combining weather and wardrobe motifs in a single brand mark.
 - The Weather and Wardrobe tabs intentionally reuse the same add-clothing sheet so the creation gesture stays calm, direct, and consistent anywhere the app invites you to grow your closet.
-- The default experience works in the simulator with signing disabled. To run on a physical device, open the project in Xcode and choose your development team.
+- The default experience works in the simulator with signing disabled, while physical-device signing can stay local through `Config/Local.xcconfig`.
 
 ## Documentation
 

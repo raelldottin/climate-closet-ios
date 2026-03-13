@@ -1,0 +1,3 @@
+// Shared app configuration that is safe to commit.
+// Personal signing details belong in Config/Local.xcconfig, which is gitignored.
+#include? "Local.xcconfig"

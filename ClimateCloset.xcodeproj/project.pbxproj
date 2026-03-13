@@ -73,6 +73,8 @@
 		AA0000000000000000000016 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		AA0000000000000000000017 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		AA0000000000000000000018 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
+		AA0000000000000000000019 /* App.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = App.xcconfig; sourceTree = "<group>"; };
+		AA000000000000000000001A /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig.example; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +110,7 @@
 				AA0000000000000000000021 /* ClimateCloset */,
 				AA0000000000000000000022 /* ClimateClosetTests */,
 				AA0000000000000000000023 /* ClimateClosetIntegrationTests */,
+				AA0000000000000000000026 /* Config */,
 				AA0000000000000000000024 /* Products */,
 				AA0000000000000000000025 /* Frameworks */,
 			);
@@ -170,6 +173,15 @@
 				AA0000000000000000000016 /* XCTest.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000026 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				AA0000000000000000000019 /* App.xcconfig */,
+				AA000000000000000000001A /* Local.xcconfig.example */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -446,10 +458,10 @@
 		};
 		AA00000000000000000000B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0000000000000000000019 /* App.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Climate Closet";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -466,10 +478,10 @@
 		};
 		AA00000000000000000000B3 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA0000000000000000000019 /* App.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Climate Closet";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
