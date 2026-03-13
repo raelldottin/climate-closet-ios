@@ -4,6 +4,8 @@
 
 Climate Closet combines daily weather planning with wardrobe tracking. The app is designed for one core question: what did I wear at this temperature, and what should I wear next time?
 
+The app icon and launch screen use the same weather-meets-wardrobe branding as the in-app experience, so opening the app on device or in the simulator matches the rest of the visual design.
+
 ## Main tabs
 
 ### Weather
@@ -50,4 +52,3 @@ Climate Closet combines daily weather planning with wardrobe tracking. The app i
 ## Running on a device
 
 Open the project in Xcode and select a personal development team for the app target if you want to deploy to a physical iPhone.
-

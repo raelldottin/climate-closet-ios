@@ -22,6 +22,8 @@ Climate Closet is an iOS SwiftUI weather app inspired by Apple's Weather experie
 ## Project layout
 
 - `ClimateCloset/`: SwiftUI app target
+- `ClimateCloset/Assets.xcassets`: app icon and launch screen artwork
+- `ClimateCloset/LaunchScreen.storyboard`: static launch experience shown while SwiftUI boots
 - `ClimateClosetTests/`: unit tests for pure domain and parsing logic
 - `ClimateClosetIntegrationTests/`: adapter-level integration tests
 - `docs/`: user and engineering documentation
@@ -58,6 +60,7 @@ make test
 ## Design notes
 
 - The app follows the unit-testing guidance from *Unit Testing: Principles, Practices, and Patterns* by keeping the domain logic pure, pushing I/O to adapters, and reserving slower tests for repository integration.
+- The app icon and launch screen share the in-app atmospheric palette, combining weather and wardrobe motifs in a single brand mark.
 - The default experience works in the simulator with signing disabled. To run on a physical device, open the project in Xcode and choose your development team.
 
 ## Documentation

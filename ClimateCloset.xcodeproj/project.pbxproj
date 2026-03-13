@@ -27,6 +27,8 @@
 		AA0000000000000000000071 /* JSONWardrobeRepositoryIntegrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000015 /* JSONWardrobeRepositoryIntegrationTests.swift */; };
 		AA0000000000000000000072 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000016 /* XCTest.framework */; };
 		AA0000000000000000000073 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000016 /* XCTest.framework */; };
+		AA0000000000000000000074 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000017 /* Assets.xcassets */; };
+		AA0000000000000000000075 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000018 /* LaunchScreen.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +71,8 @@
 		AA0000000000000000000014 /* ClimateClosetIntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClimateClosetIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA0000000000000000000015 /* JSONWardrobeRepositoryIntegrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONWardrobeRepositoryIntegrationTests.swift; sourceTree = "<group>"; };
 		AA0000000000000000000016 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Platforms/iPhoneOS.platform/Developer/Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
+		AA0000000000000000000017 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		AA0000000000000000000018 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +116,8 @@
 		AA0000000000000000000021 /* ClimateCloset */ = {
 			isa = PBXGroup;
 			children = (
+				AA0000000000000000000017 /* Assets.xcassets */,
+				AA0000000000000000000018 /* LaunchScreen.storyboard */,
 				AA0000000000000000000002 /* ClimateClosetApp.swift */,
 				AA0000000000000000000003 /* Models.swift */,
 				AA0000000000000000000004 /* Repositories.swift */,
@@ -269,6 +275,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AA0000000000000000000074 /* Assets.xcassets in Resources */,
+				AA0000000000000000000075 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,11 +447,12 @@
 		AA00000000000000000000B2 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Climate Closet";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateCloset;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -458,11 +467,12 @@
 		AA00000000000000000000B3 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Climate Closet";
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateCloset;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -593,4 +603,3 @@
 	};
 	rootObject = AA0000000000000000000090 /* Project object */;
 }
-

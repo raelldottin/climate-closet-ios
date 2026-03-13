@@ -15,6 +15,8 @@ def expected_paths(root: Path) -> tuple[ExpectedPath, ...]:
     return (
         ExpectedPath(root / "ClimateCloset.xcodeproj", "dir"),
         ExpectedPath(root / "ClimateCloset", "dir"),
+        ExpectedPath(root / "ClimateCloset" / "Assets.xcassets", "dir"),
+        ExpectedPath(root / "ClimateCloset" / "LaunchScreen.storyboard", "file"),
         ExpectedPath(root / "ClimateClosetTests", "dir"),
         ExpectedPath(root / "ClimateClosetIntegrationTests", "dir"),
         ExpectedPath(root / "docs" / "USER_GUIDE.md", "file"),
@@ -45,4 +47,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

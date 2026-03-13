@@ -9,6 +9,7 @@ Climate Closet uses a ports-and-adapters structure so that the weather logic, im
 ### UI layer
 
 - SwiftUI views under `ClimateCloset/`
+- Static resources under `ClimateCloset/Assets.xcassets` and `ClimateCloset/LaunchScreen.storyboard`
 - `AppModel` is the presentation orchestrator and state holder
 - Views stay focused on rendering and user interaction
 
