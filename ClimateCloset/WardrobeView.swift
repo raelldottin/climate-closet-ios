@@ -3,7 +3,6 @@ import SwiftUI
 
 struct WardrobeView: View {
   @Bindable var model: AppModel
-  @State private var isPresentingAddSheet = false
   @State private var searchText = ""
   @State private var selectedCategory: ClothingCategory?
 
@@ -116,110 +115,8 @@ struct WardrobeView: View {
     .navigationTitle("Wardrobe")
     .toolbar {
       ToolbarItem(placement: .topBarTrailing) {
-        Button {
-          isPresentingAddSheet = true
-        } label: {
-          Image(systemName: "plus")
-        }
-        .tint(.white)
-      }
-    }
-    .sheet(isPresented: $isPresentingAddSheet) {
-      AddWardrobeItemSheet { item in
-        Task { await model.addWardrobeItem(item) }
-      }
-    }
-  }
-}
-
-private struct AddWardrobeItemSheet: View {
-  @Environment(\.dismiss) private var dismiss
-
-  @State private var name = ""
-  @State private var brand = ""
-  @State private var category: ClothingCategory = .top
-  @State private var warmthLevel: WarmthLevel = .light
-  @State private var minimumTemperature = 55
-  @State private var maximumTemperature = 75
-  @State private var color = ""
-  @State private var notes = ""
-  @State private var tags = ""
-  @State private var sourceURL = ""
-  @State private var imageURL = ""
-
-  let onSave: (WardrobeItem) -> Void
-
-  var body: some View {
-    NavigationStack {
-      Form {
-        Section("Identity") {
-          TextField("Name", text: $name)
-          TextField("Brand", text: $brand)
-          TextField("Color", text: $color)
-        }
-
-        Section("Fit") {
-          Picker("Category", selection: $category) {
-            ForEach(ClothingCategory.allCases) { item in
-              Text(item.title).tag(item)
-            }
-          }
-          Picker("Warmth", selection: $warmthLevel) {
-            ForEach(WarmthLevel.allCases) { level in
-              Text(level.title).tag(level)
-            }
-          }
-          Stepper("Minimum \(minimumTemperature)°", value: $minimumTemperature, in: -10...110)
-          Stepper("Maximum \(maximumTemperature)°", value: $maximumTemperature, in: -10...110)
-        }
-
-        Section("Notes") {
-          TextField("Notes", text: $notes, axis: .vertical)
-          TextField("Tags comma separated", text: $tags)
-        }
-
-        Section("Links") {
-          TextField("Source URL", text: $sourceURL)
-            .textInputAutocapitalization(.never)
-            .keyboardType(.URL)
-          TextField("Image URL", text: $imageURL)
-            .textInputAutocapitalization(.never)
-            .keyboardType(.URL)
-        }
-      }
-      .navigationTitle("Add Clothing")
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button("Cancel") {
-            dismiss()
-          }
-        }
-        ToolbarItem(placement: .confirmationAction) {
-          Button("Save") {
-            onSave(
-              WardrobeItem(
-                name: name,
-                brand: brand.isEmpty ? "Unspecified" : brand,
-                category: category,
-                warmthLevel: warmthLevel,
-                preferredTemperature: TemperatureRange(
-                  minimumF: min(minimumTemperature, maximumTemperature),
-                  maximumF: max(minimumTemperature, maximumTemperature)
-                ),
-                color: color.isEmpty ? "Unspecified" : color,
-                notes: notes,
-                tags:
-                  tags
-                  .split(separator: ",")
-                  .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                  .filter { !$0.isEmpty },
-                sourceURL: URL(string: sourceURL),
-                imageURL: URL(string: imageURL)
-              )
-            )
-            dismiss()
-          }
-          .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+        WardrobeAddToolbarButton { item in
+          Task { await model.addWardrobeItem(item) }
         }
       }
     }

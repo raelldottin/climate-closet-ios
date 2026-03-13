@@ -6,6 +6,7 @@ Climate Closet is an iOS SwiftUI weather app inspired by Apple's Weather experie
 
 - Live weather forecasts powered by Open-Meteo with current, hourly, and daily views
 - Wardrobe management for every clothing item in your closet
+- Shared quick-add wardrobe flow from both the Weather and Wardrobe tabs
 - Day-by-day outfit assignment with temperature and condition logging
 - Weather-aware outfit recommendations based on your closet and what you have worn before
 - Clothing import presets for H&M, Levi's, Banana Republic, and J.Crew, plus best-effort imports from arbitrary URLs
@@ -61,6 +62,7 @@ make test
 
 - The app follows the unit-testing guidance from *Unit Testing: Principles, Practices, and Patterns* by keeping the domain logic pure, pushing I/O to adapters, and reserving slower tests for repository integration.
 - The app icon and launch screen share the in-app atmospheric palette, combining weather and wardrobe motifs in a single brand mark.
+- The Weather and Wardrobe tabs intentionally reuse the same add-clothing sheet so the creation gesture stays calm, direct, and consistent anywhere the app invites you to grow your closet.
 - The default experience works in the simulator with signing disabled. To run on a physical device, open the project in Xcode and choose your development team.
 
 ## Documentation

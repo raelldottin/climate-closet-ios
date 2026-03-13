@@ -31,3 +31,7 @@ The test approach is directly informed by *Unit Testing: Principles, Practices, 
 - `swift-format` linting on app and test targets
 - `xcodebuild test` through the shared scheme, which runs both the unit and integration test bundles
 
+## Manual UI smoke checks
+
+- Confirm the `+` button on both the Weather and Wardrobe tabs opens the same add-clothing sheet
+- Save a wardrobe item from each tab and verify it appears in the closet and persists after relaunch

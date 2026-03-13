@@ -54,13 +54,17 @@ struct WeatherDashboardView: View {
     }
     .navigationTitle("Climate Closet")
     .toolbar {
-      ToolbarItem(placement: .topBarTrailing) {
+      ToolbarItemGroup(placement: .topBarTrailing) {
         Button {
           Task { await model.refreshWeather() }
         } label: {
           Image(systemName: "arrow.clockwise")
         }
         .tint(.white)
+
+        WardrobeAddToolbarButton { item in
+          Task { await model.addWardrobeItem(item) }
+        }
       }
     }
   }

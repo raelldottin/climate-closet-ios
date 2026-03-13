@@ -13,11 +13,13 @@ The app icon and launch screen use the same weather-meets-wardrobe branding as t
 - View the current temperature, apparent temperature, humidity, wind, and precipitation chance
 - Browse the next twelve hourly forecast entries and the next seven daily forecasts
 - Search for a city and switch the active forecast
+- Use the `+` button to add a clothing item without leaving the forecast context
 - See a suggested outfit assembled from your wardrobe
 - Review historical outfits logged near the current temperature
 
 ### Wardrobe
 
+- Use the same `+` button and add sheet as the Weather tab to capture new clothing items
 - Add clothing items with brand, category, color, notes, warmth level, preferred temperature range, and optional source URLs
 - Browse your whole closet, filter by category, and remove items you no longer own
 - Review when an item was last assigned to an outfit
