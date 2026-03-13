@@ -28,7 +28,8 @@ Climate Closet is an iOS SwiftUI weather app inspired by Apple's Weather experie
 ## Local setup
 
 ```bash
-cd /Users/raelldottin/Documents/Personal/climate-closet-ios
+git clone https://github.com/raelldottin/climate-closet-ios.git
+cd climate-closet-ios
 python3 -m venv .venv
 . .venv/bin/activate
 python -m pip install --upgrade pip
@@ -53,7 +54,6 @@ make test
 
 ## Documentation
 
-- [`docs/USER_GUIDE.md`](/Users/raelldottin/Documents/Personal/climate-closet-ios/docs/USER_GUIDE.md)
-- [`docs/ARCHITECTURE.md`](/Users/raelldottin/Documents/Personal/climate-closet-ios/docs/ARCHITECTURE.md)
-- [`docs/TESTING_STRATEGY.md`](/Users/raelldottin/Documents/Personal/climate-closet-ios/docs/TESTING_STRATEGY.md)
-
+- [`docs/USER_GUIDE.md`](docs/USER_GUIDE.md)
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)
+- [`docs/TESTING_STRATEGY.md`](docs/TESTING_STRATEGY.md)

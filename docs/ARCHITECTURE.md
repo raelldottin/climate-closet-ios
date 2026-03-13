@@ -16,12 +16,12 @@ Climate Closet uses a ports-and-adapters structure so that the weather logic, im
 
 - Plain Swift value types such as `WardrobeItem`, `OutfitAssignment`, `WeatherReport`, and `ImportedCatalogItem`
 - `OutfitPlanningService` contains pure recommendation and history-matching logic
-- Temperature ranges and condition mapping live in domain-friendly models
+- Temperature ranges live in domain-friendly models that stay independent from networking concerns
 
 ### Adapter layer
 
 - `JSONWardrobeRepository` persists wardrobe data to the app support directory
-- `OpenMeteoWeatherClient` fetches real weather and geocoding data
+- `OpenMeteoWeatherClient` fetches real weather and geocoding data, then maps remote weather codes into app conditions
 - `HTMLCatalogImporter` fetches storefront HTML and delegates parsing to `HTMLCatalogParser`
 
 ## Why this shape
@@ -38,4 +38,3 @@ This layout intentionally follows the spirit of *Unit Testing: Principles, Pract
 - The storefront importer uses best-effort parsing instead of deep per-site browser automation
 - Weather is sourced from Open-Meteo rather than WeatherKit so the app works without Apple weather service credentials
 - The app uses local JSON persistence instead of a heavier database to keep the storage adapter transparent and easy to exercise in tests
-
