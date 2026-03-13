@@ -11,6 +11,14 @@ Climate Closet is an iOS SwiftUI weather app inspired by Apple's Weather experie
 - Clothing import presets for H&M, Levi's, Banana Republic, and J.Crew, plus best-effort imports from arbitrary URLs
 - Local-first persistence with a ports-and-adapters architecture that keeps the core testable
 
+## Screenshots
+
+<p align="center">
+  <img src="docs/screenshots/weather.jpg" alt="Weather screen with current conditions, hourly forecast, and 7-day outlook." width="30%" />
+  <img src="docs/screenshots/wardrobe.jpg" alt="Wardrobe screen with closet search, category filters, and saved clothing items." width="30%" />
+  <img src="docs/screenshots/planner.jpg" alt="Planner screen with a monthly calendar and weather-aware outfit planning." width="30%" />
+</p>
+
 ## Project layout
 
 - `ClimateCloset/`: SwiftUI app target
