@@ -6,44 +6,59 @@ struct OutfitPlanningService: Sendable {
     wardrobe: [WardrobeItem],
     assignments: [OutfitAssignment]
   ) -> OutfitRecommendation? {
+    let recentMatches = historyMatches(
+      for: weather.temperatureF,
+      assignments: assignments,
+      wardrobe: wardrobe
+    )
+    return recommend(for: weather, wardrobe: wardrobe, recentMatches: recentMatches)
+  }
+
+  func recommend(
+    for weather: WeatherSnapshot,
+    wardrobe: [WardrobeItem],
+    recentMatches: [OutfitHistoryMatch]
+  ) -> OutfitRecommendation? {
     guard !wardrobe.isEmpty else {
       return nil
     }
 
+    let wardrobeByCategory = Dictionary(grouping: wardrobe, by: \.category)
+    let includesOuterwear = shouldIncludeOuterwear(for: weather)
+    let includesAccessory = shouldIncludeAccessory(for: weather)
+
     let top = bestMatch(
-      in: wardrobe,
-      category: .top,
+      in: wardrobeByCategory[.top] ?? [],
       temperatureF: weather.temperatureF,
       condition: weather.condition
     )
     let dress = bestMatch(
-      in: wardrobe,
-      category: .dress,
+      in: wardrobeByCategory[.dress] ?? [],
       temperatureF: weather.temperatureF,
       condition: weather.condition
     )
     let bottom = bestMatch(
-      in: wardrobe,
-      category: .bottom,
+      in: wardrobeByCategory[.bottom] ?? [],
       temperatureF: weather.temperatureF,
       condition: weather.condition
     )
     let shoes = bestMatch(
-      in: wardrobe,
-      category: .shoes,
+      in: wardrobeByCategory[.shoes] ?? [],
       temperatureF: weather.temperatureF,
       condition: weather.condition
     )
     let outerwear =
-      shouldIncludeOuterwear(for: weather)
+      includesOuterwear
       ? bestMatch(
-        in: wardrobe, category: .outerwear, temperatureF: weather.temperatureF,
+        in: wardrobeByCategory[.outerwear] ?? [],
+        temperatureF: weather.temperatureF,
         condition: weather.condition)
       : nil
     let accessory =
-      shouldIncludeAccessory(for: weather)
+      includesAccessory
       ? bestMatch(
-        in: wardrobe, category: .accessory, temperatureF: weather.temperatureF,
+        in: wardrobeByCategory[.accessory] ?? [],
+        temperatureF: weather.temperatureF,
         condition: weather.condition)
       : nil
 
@@ -72,11 +87,6 @@ struct OutfitPlanningService: Sendable {
       return nil
     }
 
-    let recentMatches = historyMatches(
-      for: weather.temperatureF,
-      assignments: assignments,
-      wardrobe: wardrobe
-    )
     let title: String
     if weather.temperatureF <= 45 {
       title = "Cold-weather layering"
@@ -87,7 +97,7 @@ struct OutfitPlanningService: Sendable {
     }
 
     var reason = "\(weather.temperatureF)° and \(weather.condition.title.lowercased()) call for "
-    reason += shouldIncludeOuterwear(for: weather) ? "layers" : "a lighter mix"
+    reason += includesOuterwear ? "layers" : "a lighter mix"
     if let previous = recentMatches.first {
       reason +=
         ". Similar weather match: \(previous.assignment.date.formatted(date: .abbreviated, time: .omitted))."
@@ -102,6 +112,18 @@ struct OutfitPlanningService: Sendable {
     assignments: [OutfitAssignment],
     wardrobe: [WardrobeItem]
   ) -> [OutfitHistoryMatch] {
+    historyMatches(
+      for: temperatureF,
+      assignments: assignments,
+      wardrobeByID: Dictionary(uniqueKeysWithValues: wardrobe.map { ($0.id, $0) })
+    )
+  }
+
+  func historyMatches(
+    for temperatureF: Int,
+    assignments: [OutfitAssignment],
+    wardrobeByID: [UUID: WardrobeItem]
+  ) -> [OutfitHistoryMatch] {
     assignments
       .compactMap { assignment -> OutfitHistoryMatch? in
         guard
@@ -111,7 +133,7 @@ struct OutfitPlanningService: Sendable {
           return nil
         }
         let items = assignment.itemIDs.compactMap { itemID in
-          wardrobe.first(where: { $0.id == itemID })
+          wardrobeByID[itemID]
         }
         guard !items.isEmpty else {
           return nil
@@ -132,18 +154,14 @@ struct OutfitPlanningService: Sendable {
   }
 
   private func bestMatch(
-    in wardrobe: [WardrobeItem],
-    category: ClothingCategory,
+    in candidates: [WardrobeItem],
     temperatureF: Int,
     condition: WeatherCondition
   ) -> WardrobeItem? {
-    wardrobe
-      .filter { $0.category == category }
-      .sorted {
-        rank(item: $0, temperatureF: temperatureF, condition: condition)
-          < rank(item: $1, temperatureF: temperatureF, condition: condition)
-      }
-      .first
+    candidates.min {
+      rank(item: $0, temperatureF: temperatureF, condition: condition)
+        < rank(item: $1, temperatureF: temperatureF, condition: condition)
+    }
   }
 
   private func rank(item: WardrobeItem, temperatureF: Int, condition: WeatherCondition) -> Int {

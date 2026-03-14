@@ -3,3 +3,5 @@
 //
 // Example:
 // DEVELOPMENT_TEAM = ABCDE12345
+//
+// Keep app versioning in Config/AppVersion.xcconfig so release metadata stays consistent.

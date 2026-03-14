@@ -1,0 +1,7 @@
+// Single source of truth for release version metadata.
+APP_MARKETING_VERSION = 1.0.0
+APP_BUILD_NUMBER = 1
+
+MARKETING_VERSION = $(APP_MARKETING_VERSION)
+CURRENT_PROJECT_VERSION = $(APP_BUILD_NUMBER)
+VERSIONING_SYSTEM = apple-generic

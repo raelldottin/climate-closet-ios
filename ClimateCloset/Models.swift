@@ -303,6 +303,7 @@ struct ImportedCatalogItem: Identifiable, Equatable, Sendable {
   var imageURL: URL?
   var sourceURL: URL
   var notes: String?
+  var confidence: CatalogImportConfidence
 
   init(
     id: UUID = UUID(),
@@ -312,7 +313,8 @@ struct ImportedCatalogItem: Identifiable, Equatable, Sendable {
     categoryHint: String?,
     imageURL: URL?,
     sourceURL: URL,
-    notes: String?
+    notes: String?,
+    confidence: CatalogImportConfidence = .likely
   ) {
     self.id = id
     self.title = title
@@ -322,54 +324,101 @@ struct ImportedCatalogItem: Identifiable, Equatable, Sendable {
     self.imageURL = imageURL
     self.sourceURL = sourceURL
     self.notes = notes
+    self.confidence = confidence
+  }
+}
+
+enum CatalogImportConfidence: Int, Comparable, Sendable {
+  case fallback = 0
+  case likely = 1
+  case verified = 2
+
+  static func < (lhs: CatalogImportConfidence, rhs: CatalogImportConfidence) -> Bool {
+    lhs.rawValue < rhs.rawValue
+  }
+
+  var title: String {
+    switch self {
+    case .fallback:
+      "Fallback"
+    case .likely:
+      "Strong match"
+    case .verified:
+      "Verified"
+    }
   }
 }
 
 enum ImportPreset: String, CaseIterable, Identifiable, Sendable {
-  case hm
-  case levis
-  case bananaRepublic
-  case jcrew
-  case custom
+  case productPage
+  case categoryPage
+  case openWeb
 
   var id: Self { self }
 
   var title: String {
     switch self {
-    case .hm:
-      "H&M"
-    case .levis:
-      "Levi's"
-    case .bananaRepublic:
-      "Banana Republic"
-    case .jcrew:
-      "J.Crew"
-    case .custom:
-      "Custom"
+    case .productPage:
+      "Product"
+    case .categoryPage:
+      "Category"
+    case .openWeb:
+      "Open Web"
     }
   }
 
-  var defaultURL: URL? {
+  var subtitle: String {
     switch self {
-    case .hm:
-      URL(string: "https://www2.hm.com/en_us/index.html")
-    case .levis:
-      URL(string: "https://www.levi.com")
-    case .bananaRepublic:
-      URL(string: "https://bananarepublic.gap.com")
-    case .jcrew:
-      URL(string: "https://www.jcrew.com")
-    case .custom:
-      nil
+    case .productPage:
+      "Safest for one exact piece"
+    case .categoryPage:
+      "Best when you want a rack of options"
+    case .openWeb:
+      "We will classify the page before importing"
+    }
+  }
+
+  var symbolName: String {
+    switch self {
+    case .productPage:
+      "tag"
+    case .categoryPage:
+      "square.grid.2x2"
+    case .openWeb:
+      "globe"
+    }
+  }
+
+  var placeholder: String {
+    switch self {
+    case .productPage:
+      "Paste a clothing product URL"
+    case .categoryPage:
+      "Paste a clothing category or collection URL"
+    case .openWeb:
+      "Paste any apparel URL and we'll preflight it"
     }
   }
 
   var helperText: String {
     switch self {
-    case .custom:
-      "Paste any clothing-site product or category URL. The importer uses best-effort parsing."
-    default:
-      "Preset loaded. A product or category page usually imports better than a homepage."
+    case .productPage:
+      "Use a single garment page when you want the cleanest, keynote-safe import path."
+    case .categoryPage:
+      "Collection pages can import multiple wardrobe pieces, as long as they expose real product cards."
+    case .openWeb:
+      "Paste any apparel page. Homepages, editorial pages, and beauty storefronts are intentionally blocked."
+    }
+  }
+
+  var exampleText: String {
+    switch self {
+    case .productPage:
+      "Look for paths like /product/, /p/, pid=, or a specific item slug."
+    case .categoryPage:
+      "Look for collection paths like /men/shirting, /browse/...cid=, or /collections/outerwear."
+    case .openWeb:
+      "We'll tell you whether the page looks like a product page, category page, or a dead end."
     }
   }
 }
@@ -506,6 +555,12 @@ extension TemperatureRange {
 extension URL {
   var hostDisplayName: String {
     let host = host?.lowercased() ?? absoluteString
+    if host.contains("tomfordbeauty.com") {
+      return "TOM FORD BEAUTY"
+    }
+    if host.contains("tomford") {
+      return "TOM FORD"
+    }
     if host.contains("hm.com") {
       return "H&M"
     }
@@ -519,6 +574,29 @@ extension URL {
       return "J.Crew"
     }
     return host.replacingOccurrences(of: "www.", with: "")
+  }
+
+  var normalizedCatalogKey: String {
+    guard var components = URLComponents(url: absoluteURL, resolvingAgainstBaseURL: true) else {
+      return absoluteString.lowercased()
+    }
+    components.fragment = nil
+    components.queryItems = components.queryItems?.filter {
+      let key = $0.name.lowercased()
+      return key == "pid" || key == "sku" || key == "style" || key == "cid"
+    }
+    let normalizedPath =
+      components.percentEncodedPath
+      .replacingOccurrences(of: "//+", with: "/", options: .regularExpression)
+      .trimmingCharacters(in: CharacterSet(charactersIn: "/"))
+      .lowercased()
+    let query =
+      components.queryItems?
+      .sorted { $0.name < $1.name }
+      .map { "\($0.name.lowercased())=\(($0.value ?? "").lowercased())" }
+      .joined(separator: "&")
+      ?? ""
+    return "\(components.host?.lowercased() ?? "")/\(normalizedPath)?\(query)"
   }
 }
 

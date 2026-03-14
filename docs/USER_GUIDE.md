@@ -6,6 +6,8 @@ Climate Closet combines daily weather planning with wardrobe tracking. The app i
 
 The app icon and launch screen use the same weather-meets-wardrobe branding as the in-app experience, so opening the app on device or in the simulator matches the rest of the visual design.
 
+The main tabs also follow a shared UI language: the same toolbar chrome, the same primary and secondary button treatments, and the same card and tile hierarchy repeat throughout the app so actions feel deliberate instead of arbitrary.
+
 ## Main tabs
 
 ### Weather
@@ -34,22 +36,23 @@ The app icon and launch screen use the same weather-meets-wardrobe branding as t
 
 ### Import
 
-- Start with presets for H&M, Levi's, Banana Republic, and J.Crew
-- Paste a product or category URL and run a best-effort import
-- Review parsed catalog items and add them directly to your wardrobe
-- Use the custom option to try any other clothing site that exposes usable metadata
+- Choose whether you are importing a product page, a category page, or an open-web apparel link
+- Paste a clothing URL and let the preflight card tell you whether it looks keynote-safe before you import
+- Review imported pieces in a staged queue, then add selected items in one batch or send a single piece straight into your wardrobe
+- Pages that resolve to homepages, editorial content, or beauty catalogs are blocked on purpose instead of generating noisy fallback items
 
 ## Best results for importing
 
-- Product pages generally work better than storefront homepages
-- Category pages that render product cards in HTML work better than fully client-side experiences
-- Sites with JSON-LD product metadata usually import the cleanest names, images, and prices
+- Product pages are still the cleanest path when you want one precise item
+- Category pages work well when they expose real product cards in server-rendered HTML
+- The importer only keeps wardrobe-ready products; beauty, fragrance, and other non-clothing items are filtered out
+- If a page is too broad, the app tells you before the network import starts
 
 ## Data storage
 
 - Wardrobe items and outfit assignments are stored locally on the device
 - Weather data is fetched live when you refresh or switch locations
-- Imported items are not stored until you add them to the wardrobe
+- Imported items are not stored until you explicitly add them to the wardrobe
 
 ## Running on a device
 

@@ -8,7 +8,7 @@ struct WeatherDashboardView: View {
     ZStack {
       AtmosphericBackground()
       ScrollView {
-        VStack(spacing: 18) {
+        LazyVStack(spacing: ClimateUI.Layout.sectionSpacing) {
           searchCard
 
           if let weatherReport = model.weatherReport {
@@ -32,10 +32,9 @@ struct WeatherDashboardView: View {
           } else if model.isLoadingWeather {
             GlassCard {
               ProgressView()
-                .tint(.white)
+                .tint(ClimateUI.Palette.textPrimary)
               Text("Loading forecast...")
-                .font(.system(.headline, design: .rounded))
-                .foregroundStyle(.white)
+                .climateText(.bodyStrong)
             }
           } else {
             EmptyStateCard(
@@ -45,9 +44,10 @@ struct WeatherDashboardView: View {
             )
           }
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 20)
+        .padding(.horizontal, ClimateUI.Layout.screenInset)
+        .padding(.vertical, ClimateUI.Layout.screenInset)
       }
+      .accessibilityIdentifier("screen.weather")
       .refreshable {
         await model.refreshWeather()
       }
@@ -55,12 +55,13 @@ struct WeatherDashboardView: View {
     .navigationTitle("Climate Closet")
     .toolbar {
       ToolbarItemGroup(placement: .topBarTrailing) {
-        Button {
+        ToolbarIconButton(
+          systemImage: "arrow.clockwise",
+          accessibilityLabel: "Refresh forecast",
+          accessibilityIdentifier: "action.refresh-weather"
+        ) {
           Task { await model.refreshWeather() }
-        } label: {
-          Image(systemName: "arrow.clockwise")
         }
-        .tint(.white)
 
         WardrobeAddToolbarButton { item in
           Task { await model.addWardrobeItem(item) }
@@ -76,9 +77,9 @@ struct WeatherDashboardView: View {
         subtitle: "Search a city, then compare it against your closet history."
       )
 
-      HStack(spacing: 12) {
+      HStack(alignment: .center, spacing: ClimateUI.Layout.rowSpacing) {
         TextField("Search city", text: $model.locationQuery)
-          .textFieldStyle(.roundedBorder)
+          .climateInputField()
           .onSubmit {
             Task { await model.searchLocations() }
           }
@@ -86,18 +87,17 @@ struct WeatherDashboardView: View {
         Button("Find") {
           Task { await model.searchLocations() }
         }
-        .buttonStyle(.borderedProminent)
-        .tint(.orange)
+        .buttonStyle(ClimateActionButtonStyle(kind: .primary))
       }
 
       if !model.searchResults.isEmpty {
         ScrollView(.horizontal, showsIndicators: false) {
-          HStack(spacing: 10) {
+          HStack(spacing: ClimateUI.Layout.compactSpacing) {
             ForEach(model.searchResults) { location in
               Button {
                 Task { await model.chooseLocation(location) }
               } label: {
-                CapsuleTag(text: location.displayName, tint: .white.opacity(0.20))
+                CapsuleTag(text: location.displayName, tint: ClimateUI.Palette.surfaceSelected)
               }
             }
           }
@@ -106,8 +106,7 @@ struct WeatherDashboardView: View {
 
       if let weatherError = model.weatherError {
         Text(weatherError)
-          .font(.system(.footnote, design: .rounded))
-          .foregroundStyle(.white.opacity(0.74))
+          .climateText(.detail, color: ClimateUI.Palette.textSecondary)
       }
     }
   }
@@ -117,11 +116,9 @@ struct WeatherDashboardView: View {
       HStack(alignment: .top) {
         VStack(alignment: .leading, spacing: 8) {
           Text(report.locationName)
-            .font(.system(.largeTitle, design: .rounded, weight: .bold))
-            .foregroundStyle(.white)
+            .climateText(.display)
           Text(report.current.condition.title)
-            .font(.system(.title3, design: .rounded, weight: .medium))
-            .foregroundStyle(.white.opacity(0.82))
+            .climateText(.sectionTitle, color: ClimateUI.Palette.textSecondary)
         }
         Spacer()
         Image(systemName: report.current.condition.systemImageName)
@@ -131,15 +128,12 @@ struct WeatherDashboardView: View {
 
       HStack(alignment: .firstTextBaseline, spacing: 12) {
         Text("\(report.current.temperatureF)°")
-          .font(.system(size: 78, weight: .thin, design: .rounded))
-          .foregroundStyle(.white)
+          .climateText(.displayValue)
         VStack(alignment: .leading, spacing: 6) {
           Text("Feels like \(report.current.apparentTemperatureF)°")
-            .font(.system(.headline, design: .rounded, weight: .semibold))
-            .foregroundStyle(.white.opacity(0.82))
+            .climateText(.bodyStrong, color: ClimateUI.Palette.textSecondary)
           Text("Humidity \(report.current.humidityPercent)%")
-            .font(.system(.subheadline, design: .rounded))
-            .foregroundStyle(.white.opacity(0.74))
+            .climateText(.body, color: ClimateUI.Palette.textSecondary)
         }
       }
 
@@ -163,27 +157,18 @@ struct WeatherDashboardView: View {
     GlassCard {
       SectionTitle(title: "Next 12 hours")
       ScrollView(.horizontal, showsIndicators: false) {
-        HStack(spacing: 12) {
+        HStack(spacing: ClimateUI.Layout.rowSpacing) {
           ForEach(report.hourly) { hour in
-            VStack(spacing: 10) {
+            GlassTile(cornerRadius: 20, padding: 12) {
               Text(hour.time, format: .dateTime.hour(.defaultDigits(amPM: .abbreviated)))
-                .font(.system(.caption, design: .rounded, weight: .medium))
-                .foregroundStyle(.white.opacity(0.75))
+                .climateText(.detailStrong, color: ClimateUI.Palette.textSecondary)
               Image(systemName: hour.condition.systemImageName)
                 .foregroundStyle(hour.condition.tintColor)
               Text("\(hour.temperatureF)°")
-                .font(.system(.headline, design: .rounded, weight: .semibold))
-                .foregroundStyle(.white)
+                .climateText(.bodyStrong)
               Text("\(hour.precipitationChance)%")
-                .font(.system(.caption2, design: .rounded, weight: .medium))
-                .foregroundStyle(.white.opacity(0.72))
+                .climateText(.eyebrow, color: ClimateUI.Palette.textSecondary)
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .background(
-              RoundedRectangle(cornerRadius: 20, style: .continuous)
-                .fill(.white.opacity(0.10))
-            )
           }
         }
       }
@@ -193,20 +178,20 @@ struct WeatherDashboardView: View {
   private func dailyForecastCard(report: WeatherReport) -> some View {
     GlassCard {
       SectionTitle(title: "Next 7 days")
-      VStack(spacing: 12) {
+      VStack(spacing: ClimateUI.Layout.rowSpacing) {
         ForEach(report.daily) { day in
-          HStack {
-            Text(day.date, format: .dateTime.weekday(.wide))
-              .font(.system(.headline, design: .rounded, weight: .medium))
-              .foregroundStyle(.white)
-            Spacer()
-            Image(systemName: day.condition.systemImageName)
-              .foregroundStyle(day.condition.tintColor)
-            Text("\(day.lowTemperatureF)°")
-              .foregroundStyle(.white.opacity(0.75))
-            Text("\(day.highTemperatureF)°")
-              .font(.system(.headline, design: .rounded, weight: .semibold))
-              .foregroundStyle(.white)
+          GlassTile(cornerRadius: 20) {
+            HStack {
+              Text(day.date, format: .dateTime.weekday(.wide))
+                .climateText(.bodyStrong)
+              Spacer()
+              Image(systemName: day.condition.systemImageName)
+                .foregroundStyle(day.condition.tintColor)
+              Text("\(day.lowTemperatureF)°")
+                .climateText(.body, color: ClimateUI.Palette.textSecondary)
+              Text("\(day.highTemperatureF)°")
+                .climateText(.bodyStrong)
+            }
           }
         }
       }
@@ -216,61 +201,45 @@ struct WeatherDashboardView: View {
   private func recommendationCard(_ recommendation: OutfitRecommendation) -> some View {
     GlassCard {
       SectionTitle(title: recommendation.title, subtitle: recommendation.reason)
-      HStack(spacing: 10) {
+      HStack(spacing: ClimateUI.Layout.compactSpacing) {
         ForEach(recommendation.items) { item in
-          VStack(alignment: .leading, spacing: 8) {
+          GlassTile(cornerRadius: 18, padding: 12) {
             Image(systemName: item.category.systemImageName)
-              .foregroundStyle(.white)
+              .foregroundStyle(ClimateUI.Palette.textPrimary)
             Text(item.name)
-              .font(.system(.subheadline, design: .rounded, weight: .semibold))
-              .foregroundStyle(.white)
+              .climateText(.bodyStrong)
             Text(item.preferredTemperature.label)
-              .font(.system(.caption2, design: .rounded))
-              .foregroundStyle(.white.opacity(0.72))
+              .climateText(.eyebrow, color: ClimateUI.Palette.textSecondary)
           }
-          .padding(12)
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .background(
-            RoundedRectangle(cornerRadius: 18, style: .continuous)
-              .fill(.white.opacity(0.10))
-          )
         }
       }
     }
   }
 
+  @ViewBuilder
   private var historyCard: some View {
-    Group {
-      if model.historyMatches.isEmpty {
-        EmptyStateCard(
-          title: "No nearby outfit history yet",
-          message: "Plan or log outfits with temperatures to build your personal weather memory.",
-          symbol: "clock.arrow.trianglehead.counterclockwise.rotate.90"
-        )
-      } else {
-        GlassCard {
-          SectionTitle(title: "Similar weather history")
-          VStack(spacing: 12) {
-            ForEach(model.historyMatches.prefix(3)) { match in
-              VStack(alignment: .leading, spacing: 8) {
-                HStack {
-                  Text(match.assignment.date, format: .dateTime.month().day())
-                    .font(.system(.headline, design: .rounded, weight: .semibold))
-                    .foregroundStyle(.white)
-                  Spacer()
-                  Text("Δ \(match.temperatureDelta)°")
-                    .font(.system(.caption, design: .rounded, weight: .bold))
-                    .foregroundStyle(.white.opacity(0.76))
-                }
-                Text(match.items.map(\.name).joined(separator: ", "))
-                  .font(.system(.subheadline, design: .rounded))
-                  .foregroundStyle(.white.opacity(0.78))
+    let historyMatches = model.historyMatches
+    if historyMatches.isEmpty {
+      EmptyStateCard(
+        title: "No nearby outfit history yet",
+        message: "Plan or log outfits with temperatures to build your personal weather memory.",
+        symbol: "clock.arrow.trianglehead.counterclockwise.rotate.90"
+      )
+    } else {
+      GlassCard {
+        SectionTitle(title: "Similar weather history")
+        VStack(spacing: ClimateUI.Layout.rowSpacing) {
+          ForEach(historyMatches.prefix(3)) { match in
+            GlassTile(cornerRadius: 18) {
+              HStack {
+                Text(match.assignment.date, format: .dateTime.month().day())
+                  .climateText(.bodyStrong)
+                Spacer()
+                Text("Δ \(match.temperatureDelta)°")
+                  .climateText(.captionStrong, color: ClimateUI.Palette.textSecondary)
               }
-              .padding(14)
-              .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                  .fill(.white.opacity(0.10))
-              )
+              Text(match.items.map(\.name).joined(separator: ", "))
+                .climateText(.body, color: ClimateUI.Palette.textSecondary)
             }
           }
         }
@@ -285,19 +254,11 @@ private struct WeatherMetricView: View {
   var icon: String
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
+    GlassTile(cornerRadius: 20) {
       Label(title, systemImage: icon)
-        .font(.system(.caption, design: .rounded, weight: .medium))
-        .foregroundStyle(.white.opacity(0.70))
+        .climateText(.detailStrong, color: ClimateUI.Palette.textSecondary)
       Text(value)
-        .font(.system(.headline, design: .rounded, weight: .semibold))
-        .foregroundStyle(.white)
+        .climateText(.bodyStrong)
     }
-    .padding(14)
-    .frame(maxWidth: .infinity, alignment: .leading)
-    .background(
-      RoundedRectangle(cornerRadius: 20, style: .continuous)
-        .fill(.white.opacity(0.10))
-    )
   }
 }

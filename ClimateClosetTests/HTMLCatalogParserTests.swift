@@ -73,4 +73,60 @@ final class HTMLCatalogParserTests: XCTestCase {
     XCTAssertEqual(
       items.first?.sourceURL.absoluteString, "https://www.levi.com/products/relaxed-denim-jacket")
   }
+
+  func testParserIgnoresStorefrontMetaFallbackForHomepages() {
+    let parser = HTMLCatalogParser()
+    let html = """
+      <html>
+        <head>
+          <title>TOM FORD Online Store</title>
+          <meta property="og:title" content="TOM FORD Online Store" />
+          <meta property="og:type" content="website" />
+          <meta property="og:description" content="Discover the world of TOM FORD." />
+        </head>
+      </html>
+      """
+
+    let items = parser.parse(html: html, sourceURL: URL(string: "https://www.tomford.com")!)
+
+    XCTAssertTrue(items.isEmpty)
+  }
+
+  func testClassifierRejectsHomepagesAndAcceptsCategoryURLs() {
+    let classifier = CatalogImportURLClassifier()
+
+    XCTAssertEqual(
+      classifier.classify(url: URL(string: "https://www.tomford.com")!),
+      .needsCatalogPage(host: "TOM FORD")
+    )
+    XCTAssertEqual(
+      classifier.classify(url: URL(string: "https://bananarepublic.gap.com/browse/women/jackets")!),
+      .ready(kind: .category, host: "Banana Republic")
+    )
+  }
+
+  func testWearabilityFilterRejectsBeautyProducts() {
+    let filter = CatalogWearabilityFilter()
+    let eyeliner = ImportedCatalogItem(
+      title: "Gel Eyeliner",
+      brand: "TOM FORD BEAUTY",
+      priceText: "$55.00",
+      categoryHint: "Makeup",
+      imageURL: URL(string: "https://example.com/eyeliner.png"),
+      sourceURL: URL(string: "https://www.tomfordbeauty.com/product/gel-eyeliner")!,
+      notes: "Long-wear eye product"
+    )
+    let jacket = ImportedCatalogItem(
+      title: "Relaxed Denim Jacket",
+      brand: "Levi's",
+      priceText: "$128.00",
+      categoryHint: "Outerwear",
+      imageURL: URL(string: "https://example.com/jacket.png"),
+      sourceURL: URL(string: "https://www.levi.com/products/relaxed-denim-jacket")!,
+      notes: "Wardrobe staple"
+    )
+
+    XCTAssertFalse(filter.isWearable(eyeliner))
+    XCTAssertTrue(filter.isWearable(jacket))
+  }
 }

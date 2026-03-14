@@ -20,6 +20,7 @@
 		AA000000000000000000006A /* WardrobeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000000C /* WardrobeView.swift */; };
 		AA000000000000000000006B /* ScheduleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000000D /* ScheduleView.swift */; };
 		AA000000000000000000006C /* ImportCatalogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000000E /* ImportCatalogView.swift */; };
+		AA0000000000000000000076 /* AppDependencies.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000001B /* AppDependencies.swift */; };
 		AA000000000000000000006D /* TestSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000010 /* TestSupport.swift */; };
 		AA000000000000000000006E /* OutfitPlannerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000011 /* OutfitPlannerTests.swift */; };
 		AA000000000000000000006F /* HTMLCatalogParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000012 /* HTMLCatalogParserTests.swift */; };
@@ -29,6 +30,8 @@
 		AA0000000000000000000073 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000016 /* XCTest.framework */; };
 		AA0000000000000000000074 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000017 /* Assets.xcassets */; };
 		AA0000000000000000000075 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000018 /* LaunchScreen.storyboard */; };
+		AA0000000000000000000077 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA0000000000000000000016 /* XCTest.framework */; };
+		AA0000000000000000000078 /* ClimateClosetBenchmarks.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA000000000000000000001D /* ClimateClosetBenchmarks.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +43,13 @@
 			remoteInfo = ClimateCloset;
 		};
 		AA0000000000000000000081 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = AA0000000000000000000090 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA0000000000000000000030;
+			remoteInfo = ClimateCloset;
+		};
+		AA0000000000000000000084 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = AA0000000000000000000090 /* Project object */;
 			proxyType = 1;
@@ -75,6 +85,10 @@
 		AA0000000000000000000018 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		AA0000000000000000000019 /* App.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = App.xcconfig; sourceTree = "<group>"; };
 		AA000000000000000000001A /* Local.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Local.xcconfig.example; sourceTree = "<group>"; };
+		AA000000000000000000001B /* AppDependencies.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDependencies.swift; sourceTree = "<group>"; };
+		AA000000000000000000001C /* ClimateClosetUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClimateClosetUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA000000000000000000001D /* ClimateClosetBenchmarks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClimateClosetBenchmarks.swift; sourceTree = "<group>"; };
+		AA000000000000000000001E /* AppVersion.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppVersion.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +115,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA000000000000000000004A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000077 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -110,6 +132,7 @@
 				AA0000000000000000000021 /* ClimateCloset */,
 				AA0000000000000000000022 /* ClimateClosetTests */,
 				AA0000000000000000000023 /* ClimateClosetIntegrationTests */,
+				AA0000000000000000000027 /* ClimateClosetUITests */,
 				AA0000000000000000000026 /* Config */,
 				AA0000000000000000000024 /* Products */,
 				AA0000000000000000000025 /* Frameworks */,
@@ -128,6 +151,7 @@
 				AA0000000000000000000006 /* WeatherClient.swift */,
 				AA0000000000000000000007 /* CatalogImport.swift */,
 				AA0000000000000000000008 /* AppModel.swift */,
+				AA000000000000000000001B /* AppDependencies.swift */,
 				AA0000000000000000000009 /* SharedViews.swift */,
 				AA000000000000000000000A /* ContentView.swift */,
 				AA000000000000000000000B /* WeatherDashboardView.swift */,
@@ -163,6 +187,7 @@
 				AA0000000000000000000001 /* ClimateCloset.app */,
 				AA000000000000000000000F /* ClimateClosetTests.xctest */,
 				AA0000000000000000000014 /* ClimateClosetIntegrationTests.xctest */,
+				AA000000000000000000001C /* ClimateClosetUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,9 +204,18 @@
 			isa = PBXGroup;
 			children = (
 				AA0000000000000000000019 /* App.xcconfig */,
+				AA000000000000000000001E /* AppVersion.xcconfig */,
 				AA000000000000000000001A /* Local.xcconfig.example */,
 			);
 			path = Config;
+			sourceTree = "<group>";
+		};
+		AA0000000000000000000027 /* ClimateClosetUITests */ = {
+			isa = PBXGroup;
+			children = (
+				AA000000000000000000001D /* ClimateClosetBenchmarks.swift */,
+			);
+			path = ClimateClosetUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -240,6 +274,24 @@
 			productReference = AA0000000000000000000014 /* ClimateClosetIntegrationTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		AA0000000000000000000033 /* ClimateClosetUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA00000000000000000000A4 /* Build configuration list for PBXNativeTarget "ClimateClosetUITests" */;
+			buildPhases = (
+				AA0000000000000000000049 /* Sources */,
+				AA000000000000000000004A /* Frameworks */,
+				AA000000000000000000004B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA0000000000000000000085 /* PBXTargetDependency */,
+			);
+			name = ClimateClosetUITests;
+			productName = ClimateClosetUITests;
+			productReference = AA000000000000000000001C /* ClimateClosetUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -257,6 +309,10 @@
 						TestTargetID = AA0000000000000000000030;
 					};
 					AA0000000000000000000032 = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = AA0000000000000000000030;
+					};
+					AA0000000000000000000033 = {
 						CreatedOnToolsVersion = 26.3;
 						TestTargetID = AA0000000000000000000030;
 					};
@@ -278,6 +334,7 @@
 				AA0000000000000000000030 /* ClimateCloset */,
 				AA0000000000000000000031 /* ClimateClosetTests */,
 				AA0000000000000000000032 /* ClimateClosetIntegrationTests */,
+				AA0000000000000000000033 /* ClimateClosetUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -306,6 +363,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA000000000000000000004B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -315,6 +379,7 @@
 			files = (
 				AA0000000000000000000060 /* ClimateClosetApp.swift in Sources */,
 				AA0000000000000000000066 /* AppModel.swift in Sources */,
+				AA0000000000000000000076 /* AppDependencies.swift in Sources */,
 				AA0000000000000000000065 /* CatalogImport.swift in Sources */,
 				AA0000000000000000000068 /* ContentView.swift in Sources */,
 				AA000000000000000000006C /* ImportCatalogView.swift in Sources */,
@@ -348,6 +413,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		AA0000000000000000000049 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA0000000000000000000078 /* ClimateClosetBenchmarks.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -360,6 +433,11 @@
 			isa = PBXTargetDependency;
 			target = AA0000000000000000000030 /* ClimateCloset */;
 			targetProxy = AA0000000000000000000081 /* PBXContainerItemProxy */;
+		};
+		AA0000000000000000000085 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA0000000000000000000030 /* ClimateCloset */;
+			targetProxy = AA0000000000000000000084 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -463,10 +541,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Climate Closet";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateCloset;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -483,10 +559,8 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_CFBundleDisplayName = "Climate Closet";
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateCloset;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -572,6 +646,40 @@
 			};
 			name = Release;
 		};
+		AA00000000000000000000B8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateClosetUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ClimateCloset;
+			};
+			name = Debug;
+		};
+		AA00000000000000000000B9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateClosetUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = ClimateCloset;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -607,6 +715,15 @@
 			buildConfigurations = (
 				AA00000000000000000000B6 /* Debug */,
 				AA00000000000000000000B7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA00000000000000000000A4 /* Build configuration list for PBXNativeTarget "ClimateClosetUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA00000000000000000000B8 /* Debug */,
+				AA00000000000000000000B9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -16,14 +16,15 @@ struct ScheduleView: View {
     ZStack {
       AtmosphericBackground()
       ScrollView {
-        VStack(spacing: 18) {
+        LazyVStack(spacing: ClimateUI.Layout.sectionSpacing) {
           monthNavigationCard
           monthGridCard
           editorCard
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 20)
+        .padding(.horizontal, ClimateUI.Layout.screenInset)
+        .padding(.vertical, ClimateUI.Layout.screenInset)
       }
+      .accessibilityIdentifier("screen.planner")
     }
     .navigationTitle("Planner")
     .onAppear(perform: syncDraft)
@@ -40,29 +41,25 @@ struct ScheduleView: View {
       HStack {
         VStack(alignment: .leading, spacing: 6) {
           Text(monthAnchor, format: .dateTime.month(.wide).year())
-            .font(.system(.title2, design: .rounded, weight: .semibold))
-            .foregroundStyle(.white)
+            .climateText(.title)
           Text("Tap a day to assign your outfit and record the weather context.")
-            .font(.system(.subheadline, design: .rounded))
-            .foregroundStyle(.white.opacity(0.72))
+            .climateText(.body, color: ClimateUI.Palette.textSecondary)
         }
         Spacer()
-        HStack(spacing: 10) {
+        HStack(spacing: ClimateUI.Layout.compactSpacing) {
           Button {
             monthAnchor = calendar.date(byAdding: .month, value: -1, to: monthAnchor) ?? monthAnchor
           } label: {
             Image(systemName: "chevron.left")
           }
-          .buttonStyle(.bordered)
-          .tint(.white.opacity(0.85))
+          .buttonStyle(ClimateIconButtonStyle())
 
           Button {
             monthAnchor = calendar.date(byAdding: .month, value: 1, to: monthAnchor) ?? monthAnchor
           } label: {
             Image(systemName: "chevron.right")
           }
-          .buttonStyle(.bordered)
-          .tint(.white.opacity(0.85))
+          .buttonStyle(ClimateIconButtonStyle())
         }
       }
     }
@@ -76,36 +73,39 @@ struct ScheduleView: View {
       ) {
         ForEach(dayLabels, id: \.self) { label in
           Text(label)
-            .font(.system(.caption, design: .rounded, weight: .bold))
-            .foregroundStyle(.white.opacity(0.75))
+            .climateText(.captionStrong, color: ClimateUI.Palette.textSecondary)
         }
 
         ForEach(Array(monthCells().enumerated()), id: \.offset) { _, cellDate in
           if let cellDate {
+            let assignment = model.assignment(on: cellDate)
             Button {
               selectedDate = cellDate
             } label: {
-              VStack(spacing: 8) {
+              GlassTile(
+                cornerRadius: 18,
+                padding: 10,
+                fill:
+                  calendar.isDate(cellDate, inSameDayAs: selectedDate)
+                  ? ClimateUI.Palette.accent.opacity(0.48) : ClimateUI.Palette.surface
+              ) {
                 Text("\(calendar.component(.day, from: cellDate))")
-                  .font(.system(.headline, design: .rounded, weight: .semibold))
-                  .foregroundStyle(.white)
-                if let assignment = model.assignment(on: cellDate) {
+                  .climateText(.bodyStrong)
+                if let assignment {
                   Text("\(assignment.itemIDs.count) items")
-                    .font(.system(.caption2, design: .rounded, weight: .medium))
-                    .foregroundStyle(.white.opacity(0.72))
+                    .climateText(.eyebrow, color: ClimateUI.Palette.textSecondary)
                 } else {
                   Text(" ")
                     .font(.caption2)
                 }
               }
               .frame(maxWidth: .infinity, minHeight: 58)
-              .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                  .fill(
-                    calendar.isDate(cellDate, inSameDayAs: selectedDate)
-                      ? .orange.opacity(0.55) : .white.opacity(0.10))
-              )
             }
+            .accessibilityIdentifier(
+              calendar.isDate(cellDate, inSameDayAs: selectedDate)
+                ? "planner.day.selected" : plannerDayIdentifier(for: cellDate)
+            )
+            .accessibilityValue(assignment.map { String($0.itemIDs.count) } ?? "0")
           } else {
             Color.clear
               .frame(height: 58)
@@ -131,7 +131,7 @@ struct ScheduleView: View {
         )
       } else {
         Stepper("Temperature \(recordedTemperature)°", value: $recordedTemperature, in: -10...110)
-          .tint(.orange)
+          .tint(ClimateUI.Palette.accent)
 
         Picker("Condition", selection: $recordedCondition) {
           ForEach(WeatherCondition.allCases) { condition in
@@ -141,9 +141,10 @@ struct ScheduleView: View {
         .pickerStyle(.menu)
 
         TextField("Notes for the day", text: $note, axis: .vertical)
-          .textFieldStyle(.roundedBorder)
+          .climateInputField()
+          .accessibilityIdentifier("field.planner.note")
 
-        VStack(spacing: 10) {
+        LazyVStack(spacing: ClimateUI.Layout.compactSpacing) {
           ForEach(model.wardrobeItems) { item in
             Button {
               if selectedItemIDs.contains(item.id) {
@@ -152,27 +153,32 @@ struct ScheduleView: View {
                 selectedItemIDs.insert(item.id)
               }
             } label: {
-              HStack {
-                Image(
-                  systemName: selectedItemIDs.contains(item.id) ? "checkmark.circle.fill" : "circle"
-                )
-                .foregroundStyle(selectedItemIDs.contains(item.id) ? .orange : .white.opacity(0.72))
-                VStack(alignment: .leading, spacing: 4) {
-                  Text(item.name)
-                    .font(.system(.headline, design: .rounded, weight: .semibold))
-                    .foregroundStyle(.white)
-                  Text("\(item.category.title) • \(item.preferredTemperature.label)")
-                    .font(.system(.caption, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.72))
+              GlassTile(
+                cornerRadius: 18,
+                fill:
+                  selectedItemIDs.contains(item.id)
+                  ? ClimateUI.Palette.surfaceSelected : ClimateUI.Palette.surface
+              ) {
+                HStack {
+                  Image(
+                    systemName:
+                      selectedItemIDs.contains(item.id) ? "checkmark.circle.fill" : "circle"
+                  )
+                  .foregroundStyle(
+                    selectedItemIDs.contains(item.id)
+                      ? ClimateUI.Palette.accent : ClimateUI.Palette.textSecondary
+                  )
+                  VStack(alignment: .leading, spacing: 4) {
+                    Text(item.name)
+                      .climateText(.bodyStrong)
+                    Text("\(item.category.title) • \(item.preferredTemperature.label)")
+                      .climateText(.caption, color: ClimateUI.Palette.textSecondary)
+                  }
+                  Spacer()
                 }
-                Spacer()
               }
-              .padding(14)
-              .background(
-                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                  .fill(.white.opacity(0.10))
-              )
             }
+            .accessibilityIdentifier("planner.item.\(item.id.uuidString)")
           }
         }
 
@@ -190,8 +196,7 @@ struct ScheduleView: View {
               )
             }
           }
-          .buttonStyle(.bordered)
-          .tint(.white.opacity(0.85))
+          .buttonStyle(ClimateActionButtonStyle(kind: .secondary))
 
           Spacer()
 
@@ -206,9 +211,15 @@ struct ScheduleView: View {
               )
             }
           }
-          .buttonStyle(.borderedProminent)
-          .tint(.orange)
+          .buttonStyle(ClimateActionButtonStyle(kind: .primary))
+          .accessibilityIdentifier("action.save-day")
         }
+
+        Color.clear
+          .frame(width: 1, height: 1)
+          .accessibilityElement()
+          .accessibilityIdentifier("planner.persistence-revision")
+          .accessibilityValue(String(model.persistenceRevision))
       }
     }
   }
@@ -254,5 +265,13 @@ struct ScheduleView: View {
       cells.append(nil)
     }
     return cells
+  }
+
+  private func plannerDayIdentifier(for date: Date) -> String {
+    let components = calendar.dateComponents([.year, .month, .day], from: date)
+    let year = components.year ?? 0
+    let month = components.month ?? 0
+    let day = components.day ?? 0
+    return String(format: "planner.day.%04d-%02d-%02d", year, month, day)
   }
 }

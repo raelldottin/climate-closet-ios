@@ -22,7 +22,7 @@ struct WardrobeView: View {
     ZStack {
       AtmosphericBackground()
       ScrollView {
-        VStack(spacing: 18) {
+        LazyVStack(spacing: ClimateUI.Layout.sectionSpacing) {
           GlassCard {
             SectionTitle(
               title: "Your wardrobe",
@@ -30,16 +30,19 @@ struct WardrobeView: View {
                 "Track every clothing piece and remember what worked for each temperature band."
             )
             TextField("Search wardrobe", text: $searchText)
-              .textFieldStyle(.roundedBorder)
+              .climateInputField()
+              .accessibilityIdentifier("field.wardrobe.search")
 
             ScrollView(.horizontal, showsIndicators: false) {
-              HStack(spacing: 10) {
+              HStack(spacing: ClimateUI.Layout.compactSpacing) {
                 Button {
                   selectedCategory = nil
                 } label: {
                   CapsuleTag(
                     text: "All",
-                    tint: selectedCategory == nil ? .orange.opacity(0.55) : .white.opacity(0.16)
+                    tint:
+                      selectedCategory == nil
+                      ? ClimateUI.Palette.accent.opacity(0.62) : ClimateUI.Palette.surfaceStrong
                   )
                 }
                 ForEach(ClothingCategory.allCases) { category in
@@ -48,8 +51,9 @@ struct WardrobeView: View {
                   } label: {
                     CapsuleTag(
                       text: category.title,
-                      tint: selectedCategory == category
-                        ? .orange.opacity(0.55) : .white.opacity(0.16)
+                      tint:
+                        selectedCategory == category
+                        ? ClimateUI.Palette.accent.opacity(0.62) : ClimateUI.Palette.surfaceStrong
                     )
                   }
                 }
@@ -66,18 +70,16 @@ struct WardrobeView: View {
           } else {
             ForEach(filteredItems) { item in
               GlassCard {
-                HStack(alignment: .top) {
+                HStack(alignment: .top, spacing: ClimateUI.Layout.rowSpacing) {
                   VStack(alignment: .leading, spacing: 10) {
                     HStack {
                       Image(systemName: item.category.systemImageName)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(ClimateUI.Palette.textPrimary)
                       Text(item.name)
-                        .font(.system(.headline, design: .rounded, weight: .semibold))
-                        .foregroundStyle(.white)
+                        .climateText(.bodyStrong)
                     }
                     Text(item.brand)
-                      .font(.system(.subheadline, design: .rounded))
-                      .foregroundStyle(.white.opacity(0.72))
+                      .climateText(.body, color: ClimateUI.Palette.textSecondary)
                     HStack {
                       CapsuleTag(text: item.category.title)
                       CapsuleTag(text: item.preferredTemperature.label)
@@ -85,15 +87,13 @@ struct WardrobeView: View {
                     }
                     if !item.notes.isEmpty {
                       Text(item.notes)
-                        .font(.system(.footnote, design: .rounded))
-                        .foregroundStyle(.white.opacity(0.70))
+                        .climateText(.detail, color: ClimateUI.Palette.textSecondary)
                     }
                     if let lastWornDate = model.lastWornDate(for: item) {
                       Text(
                         "Last assigned \(lastWornDate.formatted(date: .abbreviated, time: .omitted))"
                       )
-                      .font(.system(.caption, design: .rounded, weight: .medium))
-                      .foregroundStyle(.white.opacity(0.70))
+                      .climateText(.detailStrong, color: ClimateUI.Palette.textSecondary)
                     }
                   }
                   Spacer()
@@ -101,16 +101,18 @@ struct WardrobeView: View {
                     Task { await model.removeWardrobeItem(item) }
                   } label: {
                     Image(systemName: "trash")
-                      .foregroundStyle(.white.opacity(0.84))
+                      .font(.system(size: 15, weight: .semibold))
                   }
+                  .buttonStyle(ClimateIconButtonStyle(tint: ClimateUI.Palette.critical))
                 }
               }
             }
           }
         }
-        .padding(.horizontal, 18)
-        .padding(.vertical, 20)
+        .padding(.horizontal, ClimateUI.Layout.screenInset)
+        .padding(.vertical, ClimateUI.Layout.screenInset)
       }
+      .accessibilityIdentifier("screen.wardrobe")
     }
     .navigationTitle("Wardrobe")
     .toolbar {

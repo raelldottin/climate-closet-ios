@@ -8,6 +8,7 @@ final class AppModel {
   private let weatherClient: any WeatherClient
   private let catalogImporter: any CatalogImporting
   private let outfitPlanner: OutfitPlanningService
+  private let catalogURLClassifier = CatalogImportURLClassifier()
   private let calendar = Calendar.autoupdatingCurrent
   private var hasBootstrapped = false
 
@@ -21,12 +22,21 @@ final class AppModel {
   var wardrobeItems: [WardrobeItem] = []
   var assignments: [OutfitAssignment] = []
   var persistenceMessage: String?
+  var persistenceRevision = 0
+  var recommendation: OutfitRecommendation?
+  var historyMatches: [OutfitHistoryMatch] = []
 
-  var selectedImportPreset: ImportPreset = .hm
+  var selectedImportPreset: ImportPreset = .productPage
   var importURLText: String
   var importedItems: [ImportedCatalogItem] = []
+  var selectedImportedItemIDs: Set<UUID> = []
   var importError: String?
+  var importNotice: String?
   var isImportingCatalog = false
+
+  private var wardrobeByID: [UUID: WardrobeItem] = [:]
+  private var assignmentsByDate: [Date: OutfitAssignment] = [:]
+  private var lastWornDatesByItemID: [UUID: Date] = [:]
 
   init(
     wardrobeRepository: any WardrobeRepository,
@@ -41,7 +51,7 @@ final class AppModel {
     self.outfitPlanner = outfitPlanner
     self.selectedLocation = initialLocation
     self.locationQuery = initialLocation.displayName
-    self.importURLText = ImportPreset.hm.defaultURL?.absoluteString ?? ""
+    self.importURLText = ""
   }
 
   func bootstrap() async {
@@ -49,27 +59,24 @@ final class AppModel {
       return
     }
     hasBootstrapped = true
-    await loadWardrobe()
-    await refreshWeather()
+    async let wardrobeLoad: Void = loadWardrobe()
+    async let weatherRefresh: Void = refreshWeather()
+    _ = await (wardrobeLoad, weatherRefresh)
   }
 
   func loadWardrobe() async {
     do {
       let database = try await wardrobeRepository.load()
       if database == .empty {
-        let seeded = ExampleData.seededDatabase()
-        wardrobeItems = sortWardrobeItems(seeded.items)
-        assignments = sortAssignments(seeded.assignments)
-        try await wardrobeRepository.save(seeded)
+        // Seed sample data in memory without blocking launch on a non-essential disk write.
+        apply(database: ExampleData.seededDatabase())
       } else {
-        wardrobeItems = sortWardrobeItems(database.items)
-        assignments = sortAssignments(database.assignments)
+        apply(database: database)
       }
       persistenceMessage = nil
     } catch {
       let seeded = ExampleData.seededDatabase()
-      wardrobeItems = sortWardrobeItems(seeded.items)
-      assignments = sortAssignments(seeded.assignments)
+      apply(database: seeded)
       persistenceMessage = "Using sample wardrobe because the local store could not be loaded."
     }
   }
@@ -86,6 +93,7 @@ final class AppModel {
         weatherReport = ExampleData.sampleWeather(for: selectedLocation)
       }
     }
+    refreshPlanningDerivedState()
   }
 
   func searchLocations() async {
@@ -110,17 +118,20 @@ final class AppModel {
   }
 
   func addWardrobeItem(_ item: WardrobeItem) async {
-    wardrobeItems = sortWardrobeItems(wardrobeItems + [item])
+    replaceWardrobeState(
+      items: sortWardrobeItems(wardrobeItems + [item]),
+      assignments: assignments
+    )
     await persist()
   }
 
   func addImportedItem(_ item: ImportedCatalogItem) async {
-    await addWardrobeItem(.from(imported: item))
+    await addImportedItems([item])
   }
 
   func removeWardrobeItem(_ item: WardrobeItem) async {
-    wardrobeItems.removeAll { $0.id == item.id }
-    assignments = assignments.compactMap { assignment in
+    let updatedItems = wardrobeItems.filter { $0.id != item.id }
+    let updatedAssignments = assignments.compactMap { assignment in
       var updated = assignment
       updated.itemIDs.removeAll { $0 == item.id }
       let isMeaningful =
@@ -130,16 +141,20 @@ final class AppModel {
         || updated.weatherSnapshot != nil
       return isMeaningful ? updated : nil
     }
+    replaceWardrobeState(
+      items: updatedItems,
+      assignments: sortAssignments(updatedAssignments)
+    )
     await persist()
   }
 
   func assignment(on date: Date) -> OutfitAssignment? {
-    assignments.first { calendar.isDate($0.date, inSameDayAs: date) }
+    assignmentsByDate[calendar.startOfDay(for: date)]
   }
 
   func items(for assignment: OutfitAssignment) -> [WardrobeItem] {
     assignment.itemIDs.compactMap { itemID in
-      wardrobeItems.first(where: { $0.id == itemID })
+      wardrobeByID[itemID]
     }
   }
 
@@ -160,10 +175,12 @@ final class AppModel {
     let effectiveTemperature = recordedTemperatureF ?? weatherSnapshot?.temperatureF
     let effectiveCondition = recordedCondition ?? weatherSnapshot?.condition
 
+    var updatedAssignments = assignments
+
     if itemIDs.isEmpty && trimmedNote.isEmpty && effectiveTemperature == nil
       && weatherSnapshot == nil
     {
-      assignments.removeAll { calendar.isDate($0.date, inSameDayAs: normalizedDate) }
+      updatedAssignments.removeAll { calendar.isDate($0.date, inSameDayAs: normalizedDate) }
     } else {
       let updatedAssignment = OutfitAssignment(
         id: assignment(on: normalizedDate)?.id ?? UUID(),
@@ -174,67 +191,119 @@ final class AppModel {
         recordedCondition: effectiveCondition,
         weatherSnapshot: weatherSnapshot
       )
-      assignments.removeAll { calendar.isDate($0.date, inSameDayAs: normalizedDate) }
-      assignments.append(updatedAssignment)
-      assignments = sortAssignments(assignments)
+      updatedAssignments.removeAll { calendar.isDate($0.date, inSameDayAs: normalizedDate) }
+      updatedAssignments.append(updatedAssignment)
     }
+    replaceWardrobeState(
+      items: wardrobeItems,
+      assignments: sortAssignments(updatedAssignments)
+    )
     await persist()
   }
 
   func importCatalog() async {
-    guard let url = URL(string: importURLText.trimmingCharacters(in: .whitespacesAndNewlines))
-    else {
-      importError = "Enter a valid URL before importing."
+    let trimmedURL = importURLText.trimmingCharacters(in: .whitespacesAndNewlines)
+    let readiness = catalogURLClassifier.classify(text: trimmedURL)
+    guard readiness.canImport, let url = URL(string: trimmedURL) else {
+      importError = readiness.message
       importedItems = []
+      selectedImportedItemIDs = []
+      importNotice = nil
       return
     }
+
     isImportingCatalog = true
     defer { isImportingCatalog = false }
     do {
-      importedItems = try await catalogImporter.importCatalog(from: url)
+      let items = try await catalogImporter.importCatalog(from: url)
+      importedItems = items
+      selectedImportedItemIDs = Set(
+        items
+          .filter { !importedItemAlreadyExists($0) }
+          .map(\.id)
+      )
       importError = nil
+      importNotice = importSuccessMessage(for: items)
     } catch {
       importedItems = []
+      selectedImportedItemIDs = []
       importError = error.localizedDescription
+      importNotice = nil
     }
   }
 
   func adoptPreset(_ preset: ImportPreset) {
     selectedImportPreset = preset
-    if let url = preset.defaultURL {
-      importURLText = url.absoluteString
-    }
-    importedItems = []
     importError = nil
+    importNotice = nil
+    importedItems = []
+    selectedImportedItemIDs = []
+  }
+
+  func updateImportURLText(_ text: String) {
+    importURLText = text
+    importError = nil
+    importNotice = nil
+    importedItems = []
+    selectedImportedItemIDs = []
+  }
+
+  func toggleImportedItemSelection(_ item: ImportedCatalogItem) {
+    guard !importedItemAlreadyExists(item) else {
+      return
+    }
+
+    if selectedImportedItemIDs.contains(item.id) {
+      selectedImportedItemIDs.remove(item.id)
+    } else {
+      selectedImportedItemIDs.insert(item.id)
+    }
+  }
+
+  func clearImportedPreview() {
+    importedItems = []
+    selectedImportedItemIDs = []
+    importError = nil
+    importNotice = nil
+  }
+
+  func addSelectedImportedItems() async {
+    let selectedItems = importedItems.filter { selectedImportedItemIDs.contains($0.id) }
+    await addImportedItems(selectedItems)
+  }
+
+  var importReadiness: CatalogImportReadiness {
+    catalogURLClassifier.classify(text: importURLText)
+  }
+
+  var canStartImport: Bool {
+    !isImportingCatalog && importReadiness.canImport
+  }
+
+  var selectedImportedItemCount: Int {
+    importedItems
+      .filter { selectedImportedItemIDs.contains($0.id) && !importedItemAlreadyExists($0) }
+      .count
+  }
+
+  var importedExistingItemCount: Int {
+    importedItems.filter(importedItemAlreadyExists).count
+  }
+
+  var importedNewItemCount: Int {
+    importedItems.count - importedExistingItemCount
+  }
+
+  func importedItemAlreadyExists(_ item: ImportedCatalogItem) -> Bool {
+    wardrobeImportKeys.contains(importKey(for: item))
+  }
+
+  func importedItemIsSelected(_ item: ImportedCatalogItem) -> Bool {
+    selectedImportedItemIDs.contains(item.id)
   }
 
   func lastWornDate(for item: WardrobeItem) -> Date? {
-    assignments
-      .filter { $0.itemIDs.contains(item.id) }
-      .map(\.date)
-      .max()
-  }
-
-  var recommendation: OutfitRecommendation? {
-    guard let currentWeather = weatherReport?.current else {
-      return nil
-    }
-    return outfitPlanner.recommend(
-      for: currentWeather,
-      wardrobe: wardrobeItems,
-      assignments: assignments
-    )
-  }
-
-  var historyMatches: [OutfitHistoryMatch] {
-    guard let currentWeather = weatherReport?.current else {
-      return []
-    }
-    return outfitPlanner.historyMatches(
-      for: currentWeather.temperatureF,
-      assignments: assignments,
-      wardrobe: wardrobeItems
-    )
+    lastWornDatesByItemID[item.id]
   }
 
   func forecastSnapshot(
@@ -283,6 +352,7 @@ final class AppModel {
       try await wardrobeRepository.save(
         WardrobeDatabase(items: wardrobeItems, assignments: assignments))
       persistenceMessage = nil
+      persistenceRevision += 1
     } catch {
       persistenceMessage = "Changes could not be saved locally."
     }
@@ -299,6 +369,125 @@ final class AppModel {
 
   private func sortAssignments(_ assignments: [OutfitAssignment]) -> [OutfitAssignment] {
     assignments.sorted { $0.date > $1.date }
+  }
+
+  private func apply(database: WardrobeDatabase) {
+    replaceWardrobeState(
+      items: sortWardrobeItems(database.items),
+      assignments: sortAssignments(database.assignments)
+    )
+  }
+
+  private func replaceWardrobeState(items: [WardrobeItem], assignments: [OutfitAssignment]) {
+    wardrobeItems = items
+    self.assignments = assignments
+    refreshWardrobeDerivedState()
+  }
+
+  private func refreshWardrobeDerivedState() {
+    wardrobeByID = Dictionary(uniqueKeysWithValues: wardrobeItems.map { ($0.id, $0) })
+    assignmentsByDate = assignments.reduce(into: [:]) { indexedAssignments, assignment in
+      indexedAssignments[calendar.startOfDay(for: assignment.date)] = assignment
+    }
+    lastWornDatesByItemID = assignments.reduce(into: [:]) { datesByItemID, assignment in
+      for itemID in assignment.itemIDs {
+        if let lastRecordedDate = datesByItemID[itemID], lastRecordedDate >= assignment.date {
+          continue
+        }
+        datesByItemID[itemID] = assignment.date
+      }
+    }
+    refreshPlanningDerivedState()
+  }
+
+  private func addImportedItems(_ items: [ImportedCatalogItem]) async {
+    let dedupedItems = uniqueImportedItems(items).filter { !importedItemAlreadyExists($0) }
+    guard !dedupedItems.isEmpty else {
+      importNotice = "Everything selected is already in your wardrobe."
+      selectedImportedItemIDs = Set(
+        importedItems.filter { !importedItemAlreadyExists($0) }.map(\.id)
+      )
+      return
+    }
+
+    let newWardrobeItems = dedupedItems.map(WardrobeItem.from(imported:))
+    replaceWardrobeState(
+      items: sortWardrobeItems(wardrobeItems + newWardrobeItems),
+      assignments: assignments
+    )
+    selectedImportedItemIDs = Set(
+      importedItems.filter { !importedItemAlreadyExists($0) }.map(\.id)
+    )
+    importNotice =
+      dedupedItems.count == 1
+      ? "Added \(dedupedItems[0].title) to your wardrobe."
+      : "Added \(dedupedItems.count) pieces to your wardrobe."
+    await persist()
+  }
+
+  private var wardrobeImportKeys: Set<String> {
+    Set(wardrobeItems.map(importKey(for:)))
+  }
+
+  private func importKey(for item: ImportedCatalogItem) -> String {
+    "\(item.sourceURL.normalizedCatalogKey)|\(normalizedImportTitle(item.title))|\(item.brand.lowercased())"
+  }
+
+  private func importKey(for item: WardrobeItem) -> String {
+    let sourceKey = item.sourceURL?.normalizedCatalogKey ?? "manual"
+    return "\(sourceKey)|\(normalizedImportTitle(item.name))|\(item.brand.lowercased())"
+  }
+
+  private func normalizedImportTitle(_ title: String) -> String {
+    title
+      .folding(options: [.diacriticInsensitive, .caseInsensitive], locale: .current)
+      .replacingOccurrences(of: #"\s+"#, with: " ", options: .regularExpression)
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+  }
+
+  private func uniqueImportedItems(_ items: [ImportedCatalogItem]) -> [ImportedCatalogItem] {
+    var seenKeys: Set<String> = []
+    return items.filter { item in
+      let key = importKey(for: item)
+      if seenKeys.contains(key) {
+        return false
+      }
+      seenKeys.insert(key)
+      return true
+    }
+  }
+
+  private func importSuccessMessage(for items: [ImportedCatalogItem]) -> String {
+    let newCount = items.filter { !importedItemAlreadyExists($0) }.count
+    if items.isEmpty {
+      return "No wardrobe-ready pieces found."
+    }
+    if newCount == 0 {
+      return "Everything on this page is already in your wardrobe."
+    }
+    if newCount == items.count {
+      return "Imported \(items.count) wardrobe-ready pieces."
+    }
+    return "Imported \(items.count) pieces. \(newCount) are new to your wardrobe."
+  }
+
+  private func refreshPlanningDerivedState() {
+    guard let currentWeather = weatherReport?.current else {
+      recommendation = nil
+      historyMatches = []
+      return
+    }
+    let matchingHistory = outfitPlanner.historyMatches(
+      for: currentWeather.temperatureF,
+      assignments: assignments,
+      wardrobeByID: wardrobeByID
+    )
+    historyMatches = matchingHistory
+    recommendation = outfitPlanner.recommend(
+      for: currentWeather,
+      wardrobe: wardrobeItems,
+      recentMatches: matchingHistory
+    )
   }
 }
 
@@ -440,8 +629,11 @@ enum ExampleData {
     return WardrobeDatabase(items: items, assignments: assignments)
   }
 
-  static func sampleWeather(for location: LocationSummary) -> WeatherReport {
-    let now = Date()
+  static func sampleWeather(
+    for location: LocationSummary,
+    referenceDate: Date = .now
+  ) -> WeatherReport {
+    let now = referenceDate
     let hourly = (0..<12).compactMap { offset -> HourlyForecast? in
       guard let date = Calendar.autoupdatingCurrent.date(byAdding: .hour, value: offset, to: now)
       else {

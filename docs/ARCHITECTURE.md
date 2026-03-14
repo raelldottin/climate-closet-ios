@@ -11,7 +11,8 @@ Climate Closet uses a ports-and-adapters structure so that the weather logic, im
 - SwiftUI views under `ClimateCloset/`
 - Static resources under `ClimateCloset/Assets.xcassets` and `ClimateCloset/LaunchScreen.storyboard`
 - `AppModel` is the presentation orchestrator and state holder
-- Shared UI building blocks, including the add-clothing sheet and toolbar action, live in `SharedViews.swift`
+- Shared UI building blocks, including the design tokens, atmospheric cards, toolbar actions, and add-clothing sheet, live in `SharedViews.swift`
+- App build identity and version metadata are driven from committed xcconfig files under `Config/`
 - Views stay focused on rendering and user interaction
 
 ### Domain layer
@@ -24,7 +25,7 @@ Climate Closet uses a ports-and-adapters structure so that the weather logic, im
 
 - `JSONWardrobeRepository` persists wardrobe data to the app support directory
 - `OpenMeteoWeatherClient` fetches real weather and geocoding data, then maps remote weather codes into app conditions
-- `HTMLCatalogImporter` fetches storefront HTML and delegates parsing to `HTMLCatalogParser`
+- `HTMLCatalogImporter` fetches storefront HTML, classifies whether the URL looks importable, and delegates parsing to `HTMLCatalogParser`
 
 ## Why this shape
 
@@ -37,6 +38,7 @@ This layout intentionally follows the spirit of *Unit Testing: Principles, Pract
 
 ## Tradeoffs
 
-- The storefront importer uses best-effort parsing instead of deep per-site browser automation
+- The storefront importer stays lightweight instead of using deep per-site browser automation, but it now gates imports through URL preflight and wardrobe-only filtering so ambiguous pages fail clearly instead of creating noisy preview data
 - Weather is sourced from Open-Meteo rather than WeatherKit so the app works without Apple weather service credentials
 - The app uses local JSON persistence instead of a heavier database to keep the storage adapter transparent and easy to exercise in tests
+- The design system is intentionally centralized so future UI work extends named primitives instead of accumulating arbitrary visual values
