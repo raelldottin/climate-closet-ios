@@ -1,0 +1,3 @@
+// Shared test-target configuration for local device benchmarking.
+// Test targets may inherit local-only signing without exposing private IDs in git.
+#include? "Local.xcconfig"

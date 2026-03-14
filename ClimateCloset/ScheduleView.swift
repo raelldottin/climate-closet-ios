@@ -38,14 +38,11 @@ struct ScheduleView: View {
 
   private var monthNavigationCard: some View {
     GlassCard {
-      HStack {
-        VStack(alignment: .leading, spacing: 6) {
-          Text(monthAnchor, format: .dateTime.month(.wide).year())
-            .climateText(.title)
-          Text("Tap a day to assign your outfit and record the weather context.")
-            .climateText(.body, color: ClimateUI.Palette.textSecondary)
-        }
-        Spacer()
+      SectionHeader(
+        title: monthAnchor.formatted(.dateTime.month(.wide).year()),
+        subtitle: "Tap a day to assign your outfit and record the weather context.",
+        titleRole: .title
+      ) {
         HStack(spacing: ClimateUI.Layout.compactSpacing) {
           Button {
             monthAnchor = calendar.date(byAdding: .month, value: -1, to: monthAnchor) ?? monthAnchor
@@ -69,7 +66,11 @@ struct ScheduleView: View {
     GlassCard {
       let dayLabels = calendar.shortWeekdaySymbols
       LazyVGrid(
-        columns: Array(repeating: GridItem(.flexible(), spacing: 10), count: 7), spacing: 10
+        columns: Array(
+          repeating: GridItem(.flexible(), spacing: ClimateUI.Layout.mediumSpacing),
+          count: 7
+        ),
+        spacing: ClimateUI.Layout.mediumSpacing
       ) {
         ForEach(dayLabels, id: \.self) { label in
           Text(label)
@@ -83,8 +84,8 @@ struct ScheduleView: View {
               selectedDate = cellDate
             } label: {
               GlassTile(
-                cornerRadius: 18,
-                padding: 10,
+                cornerRadius: ClimateUI.Radius.selection,
+                padding: ClimateUI.Layout.calendarTilePadding,
                 fill:
                   calendar.isDate(cellDate, inSameDayAs: selectedDate)
                   ? ClimateUI.Palette.accent.opacity(0.48) : ClimateUI.Palette.surface
@@ -99,7 +100,7 @@ struct ScheduleView: View {
                     .font(.caption2)
                 }
               }
-              .frame(maxWidth: .infinity, minHeight: 58)
+              .frame(maxWidth: .infinity, minHeight: ClimateUI.Layout.calendarCellMinHeight)
             }
             .accessibilityIdentifier(
               calendar.isDate(cellDate, inSameDayAs: selectedDate)
@@ -108,7 +109,7 @@ struct ScheduleView: View {
             .accessibilityValue(assignment.map { String($0.itemIDs.count) } ?? "0")
           } else {
             Color.clear
-              .frame(height: 58)
+              .frame(height: ClimateUI.Layout.calendarCellMinHeight)
           }
         }
       }
@@ -117,7 +118,7 @@ struct ScheduleView: View {
 
   private var editorCard: some View {
     GlassCard {
-      SectionTitle(
+      SectionHeader(
         title: selectedDate.formatted(date: .complete, time: .omitted),
         subtitle:
           "Assign clothing and log the weather so future recommendations are grounded in your own history."
@@ -154,7 +155,7 @@ struct ScheduleView: View {
               }
             } label: {
               GlassTile(
-                cornerRadius: 18,
+                cornerRadius: ClimateUI.Radius.selection,
                 fill:
                   selectedItemIDs.contains(item.id)
                   ? ClimateUI.Palette.surfaceSelected : ClimateUI.Palette.surface
@@ -168,7 +169,7 @@ struct ScheduleView: View {
                     selectedItemIDs.contains(item.id)
                       ? ClimateUI.Palette.accent : ClimateUI.Palette.textSecondary
                   )
-                  VStack(alignment: .leading, spacing: 4) {
+                  VStack(alignment: .leading, spacing: ClimateUI.Layout.sectionHeaderSpacing) {
                     Text(item.name)
                       .climateText(.bodyStrong)
                     Text("\(item.category.title) • \(item.preferredTemperature.label)")
@@ -216,7 +217,7 @@ struct ScheduleView: View {
         }
 
         Color.clear
-          .frame(width: 1, height: 1)
+          .frame(width: ClimateUI.Metrics.hiddenMarker, height: ClimateUI.Metrics.hiddenMarker)
           .accessibilityElement()
           .accessibilityIdentifier("planner.persistence-revision")
           .accessibilityValue(String(model.persistenceRevision))

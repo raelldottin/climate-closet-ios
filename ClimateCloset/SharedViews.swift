@@ -5,22 +5,50 @@ enum ClimateUI {
     static let screenInset: CGFloat = 20
     static let sectionSpacing: CGFloat = 18
     static let cardSpacing: CGFloat = 16
+    static let mediumSpacing: CGFloat = 10
     static let rowSpacing: CGFloat = 12
+    static let mediaSpacing: CGFloat = 14
     static let compactSpacing: CGFloat = 8
+    static let tightSpacing: CGFloat = 6
+    static let sectionHeaderSpacing: CGFloat = 4
     static let cardPadding: CGFloat = 20
     static let tilePadding: CGFloat = 14
+    static let compactTilePadding: CGFloat = 12
+    static let calendarTilePadding: CGFloat = 10
     static let chipHorizontalPadding: CGFloat = 10
     static let chipVerticalPadding: CGFloat = 6
     static let inputHorizontalPadding: CGFloat = 14
     static let inputVerticalPadding: CGFloat = 12
+    static let calendarCellMinHeight: CGFloat = 58
+    static let importThumbnailWidth: CGFloat = 96
+    static let importThumbnailHeight: CGFloat = 116
   }
 
   enum Radius {
     static let card: CGFloat = 28
     static let tile: CGFloat = 22
+    static let tileDense: CGFloat = 20
     static let control: CGFloat = 18
+    static let selection: CGFloat = 18
     static let badge: CGFloat = 12
     static let capsule: CGFloat = 999
+  }
+
+  enum Metrics {
+    static let minimumActionHeight: CGFloat = 50
+    static let iconButtonFrame: CGFloat = 38
+    static let badgeFrame: CGFloat = 34
+    static let toolbarIconFrame: CGFloat = 32
+    static let hairline: CGFloat = 1
+    static let hiddenMarker: CGFloat = 1
+  }
+
+  enum Icon {
+    static let toolbar: CGFloat = 15
+    static let badge: CGFloat = 16
+    static let emptyState: CGFloat = 28
+    static let weatherHero: CGFloat = 34
+    static let selection: CGFloat = 22
   }
 
   enum Palette {
@@ -134,7 +162,7 @@ struct ClimateActionButtonStyle: ButtonStyle {
       .climateText(.button)
       .padding(.horizontal, 18)
       .padding(.vertical, 12)
-      .frame(minHeight: 50)
+      .frame(minHeight: ClimateUI.Metrics.minimumActionHeight)
       .background(background(isPressed: configuration.isPressed))
       .overlay(border(isPressed: configuration.isPressed))
       .clipShape(RoundedRectangle(cornerRadius: ClimateUI.Radius.control, style: .continuous))
@@ -187,7 +215,7 @@ struct ClimateIconButtonStyle: ButtonStyle {
   func makeBody(configuration: Configuration) -> some View {
     configuration.label
       .foregroundStyle(tint)
-      .frame(width: 38, height: 38)
+      .frame(width: ClimateUI.Metrics.iconButtonFrame, height: ClimateUI.Metrics.iconButtonFrame)
       .background(
         RoundedRectangle(cornerRadius: ClimateUI.Radius.control, style: .continuous)
           .fill(ClimateUI.Palette.surfaceStrong.opacity(configuration.isPressed ? 0.92 : 1))
@@ -248,9 +276,9 @@ struct ClimateIconBadge: View {
 
   var body: some View {
     Image(systemName: systemImage)
-      .font(.system(size: 16, weight: .semibold))
+      .font(.system(size: ClimateUI.Icon.badge, weight: .semibold))
       .foregroundStyle(ClimateUI.Palette.textPrimary)
-      .frame(width: 34, height: 34)
+      .frame(width: ClimateUI.Metrics.badgeFrame, height: ClimateUI.Metrics.badgeFrame)
       .background(
         RoundedRectangle(cornerRadius: ClimateUI.Radius.badge, style: .continuous)
           .fill(tint)
@@ -314,15 +342,54 @@ struct GlassCard<Content: View>: View {
 struct SectionTitle: View {
   var title: String
   var subtitle: String? = nil
+  var titleRole: ClimateTextRole = .sectionTitle
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 4) {
+    VStack(alignment: .leading, spacing: ClimateUI.Layout.sectionHeaderSpacing) {
       Text(title)
-        .climateText(.sectionTitle)
+        .climateText(titleRole)
       if let subtitle {
         Text(subtitle)
           .climateText(.sectionSubtitle, color: ClimateUI.Palette.textSecondary)
       }
+    }
+  }
+}
+
+struct SectionHeader<Actions: View>: View {
+  private let title: String
+  private let subtitle: String?
+  private let titleRole: ClimateTextRole
+  private let actions: () -> Actions
+
+  init(
+    title: String,
+    subtitle: String? = nil,
+    titleRole: ClimateTextRole = .sectionTitle
+  ) where Actions == EmptyView {
+    self.title = title
+    self.subtitle = subtitle
+    self.titleRole = titleRole
+    self.actions = { EmptyView() }
+  }
+
+  init(
+    title: String,
+    subtitle: String? = nil,
+    titleRole: ClimateTextRole = .sectionTitle,
+    @ViewBuilder actions: @escaping () -> Actions
+  ) {
+    self.title = title
+    self.subtitle = subtitle
+    self.titleRole = titleRole
+    self.actions = actions
+  }
+
+  var body: some View {
+    HStack(alignment: .top, spacing: ClimateUI.Layout.rowSpacing) {
+      SectionTitle(title: title, subtitle: subtitle, titleRole: titleRole)
+      Spacer(minLength: ClimateUI.Layout.compactSpacing)
+      actions()
     }
   }
 }
@@ -351,7 +418,7 @@ struct EmptyStateCard: View {
   var body: some View {
     GlassCard {
       Image(systemName: symbol)
-        .font(.system(size: 28, weight: .regular))
+        .font(.system(size: ClimateUI.Icon.emptyState, weight: .regular))
         .foregroundStyle(ClimateUI.Palette.textPrimary.opacity(0.9))
       Text(title)
         .climateText(.bodyStrong)
@@ -402,9 +469,12 @@ private struct ToolbarIconLabel: View {
 
   var body: some View {
     Image(systemName: systemImage)
-      .font(.system(size: 15, weight: .semibold))
+      .font(.system(size: ClimateUI.Icon.toolbar, weight: .semibold))
       .foregroundStyle(ClimateUI.Palette.textPrimary)
-      .frame(width: 32, height: 32)
+      .frame(
+        width: ClimateUI.Metrics.toolbarIconFrame,
+        height: ClimateUI.Metrics.toolbarIconFrame
+      )
       .background(
         Circle()
           .fill(ClimateUI.Palette.toolbarSurface)
@@ -437,6 +507,8 @@ struct AddWardrobeItemSheet: View {
 
   var body: some View {
     NavigationStack {
+      // The add-clothing flow is intentionally native: it is the canonical dense editor
+      // reused from both Weather and Wardrobe, not a one-off atmospheric variant.
       Form {
         Section("Identity") {
           TextField("Name", text: $name)

@@ -5,8 +5,8 @@ struct ImportCatalogView: View {
   @Bindable var model: AppModel
 
   private let presetColumns = [
-    GridItem(.flexible(), spacing: 12),
-    GridItem(.flexible(), spacing: 12),
+    GridItem(.flexible(), spacing: ClimateUI.Layout.rowSpacing),
+    GridItem(.flexible(), spacing: ClimateUI.Layout.rowSpacing),
   ]
 
   var body: some View {
@@ -15,13 +15,13 @@ struct ImportCatalogView: View {
       ScrollView {
         LazyVStack(spacing: ClimateUI.Layout.sectionSpacing) {
           GlassCard {
-            SectionTitle(
+            SectionHeader(
               title: "Import studio",
               subtitle:
                 "Only wardrobe-ready product and category pages make it through. Homepages and beauty catalogs stop at the door."
             )
 
-            LazyVGrid(columns: presetColumns, spacing: 12) {
+            LazyVGrid(columns: presetColumns, spacing: ClimateUI.Layout.rowSpacing) {
               ForEach(ImportPreset.allCases) { preset in
                 Button {
                   model.adoptPreset(preset)
@@ -35,7 +35,7 @@ struct ImportCatalogView: View {
               }
             }
 
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: ClimateUI.Layout.compactSpacing) {
               Text(model.selectedImportPreset.helperText)
                 .climateText(.detail, color: ClimateUI.Palette.textSecondary)
               Text(model.selectedImportPreset.exampleText)
@@ -56,11 +56,11 @@ struct ImportCatalogView: View {
 
             ImportReadinessCard(readiness: model.importReadiness)
 
-            HStack(spacing: 12) {
+            HStack(spacing: ClimateUI.Layout.rowSpacing) {
               Button {
                 Task { await model.importCatalog() }
               } label: {
-                HStack(spacing: 8) {
+                HStack(spacing: ClimateUI.Layout.compactSpacing) {
                   if model.isImportingCatalog {
                     ProgressView()
                       .tint(ClimateUI.Palette.textPrimary)
@@ -153,7 +153,7 @@ private struct ImportPresetCard: View {
   var body: some View {
     GlassTile(
       cornerRadius: ClimateUI.Radius.tile,
-      padding: 16,
+      padding: ClimateUI.Layout.cardSpacing,
       fill: isSelected ? ClimateUI.Palette.surfaceSelected : ClimateUI.Palette.surface
     ) {
       ClimateIconBadge(
@@ -182,11 +182,11 @@ private struct ImportReadinessCard: View {
   let readiness: CatalogImportReadiness
 
   var body: some View {
-    GlassTile(cornerRadius: ClimateUI.Radius.tile, padding: 16) {
+    GlassTile(cornerRadius: ClimateUI.Radius.tile, padding: ClimateUI.Layout.cardSpacing) {
       HStack(alignment: .top, spacing: ClimateUI.Layout.rowSpacing) {
         ClimateIconBadge(systemImage: readiness.symbolName, tint: tint.opacity(0.34))
 
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: ClimateUI.Layout.sectionHeaderSpacing) {
           Text(readiness.title)
             .climateText(.bodyStrong)
           Text(readiness.message)
@@ -224,7 +224,7 @@ private struct ImportMessageRow: View {
   let tint: Color
 
   var body: some View {
-    HStack(alignment: .top, spacing: 8) {
+    HStack(alignment: .top, spacing: ClimateUI.Layout.compactSpacing) {
       Image(systemName: symbolName)
         .foregroundStyle(tint)
       Text(text)
@@ -238,12 +238,12 @@ private struct ImportBatchSummaryCard: View {
 
   var body: some View {
     GlassCard {
-      SectionTitle(
+      SectionHeader(
         title: "Import queue",
         subtitle: "Review every piece before it enters your wardrobe."
       )
 
-      HStack(spacing: 8) {
+      HStack(spacing: ClimateUI.Layout.compactSpacing) {
         CapsuleTag(text: "\(model.importedItems.count) ready")
         if model.importedNewItemCount > 0 {
           CapsuleTag(
@@ -259,7 +259,7 @@ private struct ImportBatchSummaryCard: View {
         }
       }
 
-      HStack(spacing: 12) {
+      HStack(spacing: ClimateUI.Layout.rowSpacing) {
         Button {
           Task { await model.addSelectedImportedItems() }
         } label: {
@@ -292,25 +292,28 @@ private struct ImportedCatalogItemCard: View {
 
   var body: some View {
     GlassCard {
-      HStack(alignment: .top, spacing: 14) {
+      HStack(alignment: .top, spacing: ClimateUI.Layout.mediaSpacing) {
         AsyncImage(url: item.imageURL) { image in
           image
             .resizable()
             .scaledToFill()
         } placeholder: {
-          RoundedRectangle(cornerRadius: 22, style: .continuous)
+          RoundedRectangle(cornerRadius: ClimateUI.Radius.tile, style: .continuous)
             .fill(ClimateUI.Palette.surface)
             .overlay {
               Image(systemName: "photo")
                 .foregroundStyle(ClimateUI.Palette.textSecondary)
             }
         }
-        .frame(width: 96, height: 116)
-        .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .frame(
+          width: ClimateUI.Layout.importThumbnailWidth,
+          height: ClimateUI.Layout.importThumbnailHeight
+        )
+        .clipShape(RoundedRectangle(cornerRadius: ClimateUI.Radius.tile, style: .continuous))
 
-        VStack(alignment: .leading, spacing: 10) {
-          HStack(alignment: .top, spacing: 10) {
-            VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: ClimateUI.Layout.mediumSpacing) {
+          HStack(alignment: .top, spacing: ClimateUI.Layout.mediumSpacing) {
+            VStack(alignment: .leading, spacing: ClimateUI.Layout.tightSpacing) {
               Text(item.title)
                 .climateText(.bodyStrong)
               Text(item.brand)
@@ -321,14 +324,14 @@ private struct ImportedCatalogItemCard: View {
 
             Button(action: onToggleSelection) {
               Image(systemName: selectionImageName)
-                .font(.system(size: 22, weight: .semibold))
+                .font(.system(size: ClimateUI.Icon.selection, weight: .semibold))
                 .foregroundStyle(selectionTint)
             }
             .buttonStyle(.plain)
             .disabled(isAlreadyOwned)
           }
 
-          HStack(spacing: 8) {
+          HStack(spacing: ClimateUI.Layout.compactSpacing) {
             CapsuleTag(text: item.confidence.title, tint: confidenceTint)
             if let priceText = item.priceText {
               CapsuleTag(text: priceText)
@@ -347,7 +350,7 @@ private struct ImportedCatalogItemCard: View {
               .lineLimit(2)
           }
 
-          HStack(spacing: 12) {
+          HStack(spacing: ClimateUI.Layout.rowSpacing) {
             if isAlreadyOwned {
               Label("Already in wardrobe", systemImage: "checkmark.circle.fill")
                 .climateText(.captionStrong, color: ClimateUI.Palette.textSecondary)

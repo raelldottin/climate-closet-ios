@@ -24,7 +24,7 @@ struct WardrobeView: View {
       ScrollView {
         LazyVStack(spacing: ClimateUI.Layout.sectionSpacing) {
           GlassCard {
-            SectionTitle(
+            SectionHeader(
               title: "Your wardrobe",
               subtitle:
                 "Track every clothing piece and remember what worked for each temperature band."
@@ -71,7 +71,7 @@ struct WardrobeView: View {
             ForEach(filteredItems) { item in
               GlassCard {
                 HStack(alignment: .top, spacing: ClimateUI.Layout.rowSpacing) {
-                  VStack(alignment: .leading, spacing: 10) {
+                  VStack(alignment: .leading, spacing: ClimateUI.Layout.mediumSpacing) {
                     HStack {
                       Image(systemName: item.category.systemImageName)
                         .foregroundStyle(ClimateUI.Palette.textPrimary)
@@ -101,7 +101,7 @@ struct WardrobeView: View {
                     Task { await model.removeWardrobeItem(item) }
                   } label: {
                     Image(systemName: "trash")
-                      .font(.system(size: 15, weight: .semibold))
+                      .font(.system(size: ClimateUI.Icon.toolbar, weight: .semibold))
                   }
                   .buttonStyle(ClimateIconButtonStyle(tint: ClimateUI.Palette.critical))
                 }

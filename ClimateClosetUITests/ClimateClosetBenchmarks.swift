@@ -228,12 +228,25 @@ final class ClimateClosetBenchmarks: XCTestCase {
       samples.append(try action(iteration))
     }
 
-    let summary = BenchmarkSummary(name: name, samplesInMilliseconds: samples)
+    let expectation = try XCTUnwrap(
+      BenchmarkExpectation.expectation(for: name),
+      "Missing benchmark expectation for \(name)"
+    )
+    let summary = BenchmarkSummary(
+      name: name,
+      samplesInMilliseconds: samples,
+      expectation: expectation
+    )
     let renderedSummary = summary.rendered
     print("BENCHMARK \(renderedSummary)")
     XCTContext.runActivity(named: "Benchmark \(name)") { activity in
       activity.add(XCTAttachment(string: renderedSummary))
     }
+    XCTAssertNotEqual(
+      summary.assessment,
+      .underperforming,
+      "Benchmark \(name) exceeded its hard ceiling. \(renderedSummary)"
+    )
   }
 
   private func launchInteractionApp(storeProfile: String) throws -> XCUIApplication {
@@ -337,19 +350,46 @@ final class ClimateClosetBenchmarks: XCTestCase {
 private struct BenchmarkSummary {
   let name: String
   let samplesInMilliseconds: [Double]
+  let expectation: BenchmarkExpectation
+
+  var mean: Double {
+    samplesInMilliseconds.reduce(0, +) / Double(samplesInMilliseconds.count)
+  }
+
+  var median: Double {
+    percentile(0.5, in: sortedSamples)
+  }
+
+  var p90: Double {
+    percentile(0.9, in: sortedSamples)
+  }
+
+  var minimum: Double {
+    sortedSamples.first ?? 0
+  }
+
+  var maximum: Double {
+    sortedSamples.last ?? 0
+  }
+
+  var assessment: BenchmarkAssessment {
+    if mean <= expectation.targetMeanMilliseconds {
+      return .outperforming
+    }
+    if mean <= expectation.maximumMeanMilliseconds {
+      return .meeting
+    }
+    return .underperforming
+  }
 
   var rendered: String {
-    let sorted = samplesInMilliseconds.sorted()
-    let mean = samplesInMilliseconds.reduce(0, +) / Double(samplesInMilliseconds.count)
-    let median = percentile(0.5, in: sorted)
-    let p90 = percentile(0.9, in: sorted)
-    let minimum = sorted.first ?? 0
-    let maximum = sorted.last ?? 0
-
     return String(
       format:
-        "%@ | n=%d | mean=%.1f ms | median=%.1f ms | p90=%.1f ms | min=%.1f ms | max=%.1f ms",
+        "%@ | status=%@ | target<=%.1f ms | ceiling<=%.1f ms | n=%d | mean=%.1f ms | median=%.1f ms | p90=%.1f ms | min=%.1f ms | max=%.1f ms",
       name,
+      assessment.rawValue,
+      expectation.targetMeanMilliseconds,
+      expectation.maximumMeanMilliseconds,
       samplesInMilliseconds.count,
       mean,
       median,
@@ -357,6 +397,10 @@ private struct BenchmarkSummary {
       minimum,
       maximum
     )
+  }
+
+  private var sortedSamples: [Double] {
+    samplesInMilliseconds.sorted()
   }
 
   private func percentile(_ percentile: Double, in sortedSamples: [Double]) -> Double {
@@ -373,4 +417,36 @@ private struct BenchmarkSummary {
     return sortedSamples[lowerIndex]
       + ((sortedSamples[upperIndex] - sortedSamples[lowerIndex]) * interpolation)
   }
+}
+
+private struct BenchmarkExpectation {
+  let targetMeanMilliseconds: Double
+  let maximumMeanMilliseconds: Double
+
+  static func expectation(for name: String) -> BenchmarkExpectation? {
+    switch name {
+    case "launch_to_weather_root":
+      BenchmarkExpectation(targetMeanMilliseconds: 3500, maximumMeanMilliseconds: 4250)
+    case "weather_to_wardrobe_first_load":
+      BenchmarkExpectation(targetMeanMilliseconds: 2750, maximumMeanMilliseconds: 3300)
+    case "weather_to_planner_first_load":
+      BenchmarkExpectation(targetMeanMilliseconds: 2900, maximumMeanMilliseconds: 3400)
+    case "weather_to_import_first_load":
+      BenchmarkExpectation(targetMeanMilliseconds: 2600, maximumMeanMilliseconds: 3150)
+    case "save_new_wardrobe_item":
+      BenchmarkExpectation(targetMeanMilliseconds: 2000, maximumMeanMilliseconds: 2500)
+    case "import_tom_ford_fixture":
+      BenchmarkExpectation(targetMeanMilliseconds: 1400, maximumMeanMilliseconds: 1800)
+    case "save_day_assignment_and_note":
+      BenchmarkExpectation(targetMeanMilliseconds: 1500, maximumMeanMilliseconds: 1900)
+    default:
+      nil
+    }
+  }
+}
+
+private enum BenchmarkAssessment: String {
+  case outperforming = "OUTPERFORMING"
+  case meeting = "MEETING"
+  case underperforming = "UNDERPERFORMING"
 }

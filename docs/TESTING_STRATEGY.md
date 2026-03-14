@@ -60,3 +60,18 @@ The benchmark target launches the app with a dedicated benchmark profile so meas
 - the Tom Ford import path uses deterministic imported items instead of live network variance, while still exercising the same preflight and staging UI that ships in the app
 - the planner benchmark waits for the model persistence revision to change, so it measures the actual save boundary rather than a fragile UI redraw
 - the documentation screenshot flow exports full-screen attachments so README imagery can be refreshed from the same controlled benchmark environment
+
+Each measured path has an explicit expectation band in `ClimateClosetBenchmarks.swift`:
+
+- `target` means the app is outperforming expectations for that path
+- `ceiling` is the hard upper bound for acceptable performance
+- any result between those two values is reported as `MEETING`
+- any result above the ceiling is reported as `UNDERPERFORMING` and fails the benchmark run
+
+## Baseline policy
+
+- Simulator benchmark runs are fast screening passes for local development and CI-like verification.
+- Physical-device benchmark runs are the source of truth for benchmark tracking and demo-readiness interaction checks.
+- The current harness measures the `Debug` app build on hardware because it is executed through `xcodebuild test`; release/profile measurements should be collected separately when tuning ship-mode performance.
+- The committed `Config/Tests.xcconfig` lets unit, integration, and UI benchmark targets inherit local-only signing from `Config/Local.xcconfig`, so the same `xcodebuild test` benchmark commands can run on attached hardware without exposing private team identifiers in source control.
+- The current reference device baseline was taken on March 13, 2026 on an `iPhone 15 Pro Max` running `iOS 26.0.1`, and it produced `OUTPERFORMING` results for launch and tab switches, with `MEETING` results for wardrobe save, import, and planner save.

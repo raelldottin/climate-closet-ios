@@ -72,7 +72,7 @@ struct WeatherDashboardView: View {
 
   private var searchCard: some View {
     GlassCard {
-      SectionTitle(
+      SectionHeader(
         title: "Forecast lookup",
         subtitle: "Search a city, then compare it against your closet history."
       )
@@ -114,7 +114,7 @@ struct WeatherDashboardView: View {
   private func currentWeatherCard(report: WeatherReport) -> some View {
     GlassCard {
       HStack(alignment: .top) {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: ClimateUI.Layout.compactSpacing) {
           Text(report.locationName)
             .climateText(.display)
           Text(report.current.condition.title)
@@ -122,14 +122,14 @@ struct WeatherDashboardView: View {
         }
         Spacer()
         Image(systemName: report.current.condition.systemImageName)
-          .font(.system(size: 34, weight: .medium))
+          .font(.system(size: ClimateUI.Icon.weatherHero, weight: .medium))
           .foregroundStyle(report.current.condition.tintColor)
       }
 
-      HStack(alignment: .firstTextBaseline, spacing: 12) {
+      HStack(alignment: .firstTextBaseline, spacing: ClimateUI.Layout.rowSpacing) {
         Text("\(report.current.temperatureF)°")
           .climateText(.displayValue)
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: ClimateUI.Layout.tightSpacing) {
           Text("Feels like \(report.current.apparentTemperatureF)°")
             .climateText(.bodyStrong, color: ClimateUI.Palette.textSecondary)
           Text("Humidity \(report.current.humidityPercent)%")
@@ -137,7 +137,10 @@ struct WeatherDashboardView: View {
         }
       }
 
-      LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+      LazyVGrid(
+        columns: [GridItem(.flexible()), GridItem(.flexible())],
+        spacing: ClimateUI.Layout.rowSpacing
+      ) {
         WeatherMetricView(title: "Wind", value: "\(report.current.windSpeedMPH) mph", icon: "wind")
         WeatherMetricView(
           title: "Precip", value: "\(report.current.precipitationChance)%", icon: "cloud.rain")
@@ -155,11 +158,14 @@ struct WeatherDashboardView: View {
 
   private func hourlyForecastCard(report: WeatherReport) -> some View {
     GlassCard {
-      SectionTitle(title: "Next 12 hours")
+      SectionHeader(title: "Next 12 hours")
       ScrollView(.horizontal, showsIndicators: false) {
         HStack(spacing: ClimateUI.Layout.rowSpacing) {
           ForEach(report.hourly) { hour in
-            GlassTile(cornerRadius: 20, padding: 12) {
+            GlassTile(
+              cornerRadius: ClimateUI.Radius.tileDense,
+              padding: ClimateUI.Layout.compactTilePadding
+            ) {
               Text(hour.time, format: .dateTime.hour(.defaultDigits(amPM: .abbreviated)))
                 .climateText(.detailStrong, color: ClimateUI.Palette.textSecondary)
               Image(systemName: hour.condition.systemImageName)
@@ -177,10 +183,10 @@ struct WeatherDashboardView: View {
 
   private func dailyForecastCard(report: WeatherReport) -> some View {
     GlassCard {
-      SectionTitle(title: "Next 7 days")
+      SectionHeader(title: "Next 7 days")
       VStack(spacing: ClimateUI.Layout.rowSpacing) {
         ForEach(report.daily) { day in
-          GlassTile(cornerRadius: 20) {
+          GlassTile(cornerRadius: ClimateUI.Radius.tileDense) {
             HStack {
               Text(day.date, format: .dateTime.weekday(.wide))
                 .climateText(.bodyStrong)
@@ -200,10 +206,13 @@ struct WeatherDashboardView: View {
 
   private func recommendationCard(_ recommendation: OutfitRecommendation) -> some View {
     GlassCard {
-      SectionTitle(title: recommendation.title, subtitle: recommendation.reason)
+      SectionHeader(title: recommendation.title, subtitle: recommendation.reason)
       HStack(spacing: ClimateUI.Layout.compactSpacing) {
         ForEach(recommendation.items) { item in
-          GlassTile(cornerRadius: 18, padding: 12) {
+          GlassTile(
+            cornerRadius: ClimateUI.Radius.selection,
+            padding: ClimateUI.Layout.compactTilePadding
+          ) {
             Image(systemName: item.category.systemImageName)
               .foregroundStyle(ClimateUI.Palette.textPrimary)
             Text(item.name)
@@ -227,10 +236,10 @@ struct WeatherDashboardView: View {
       )
     } else {
       GlassCard {
-        SectionTitle(title: "Similar weather history")
+        SectionHeader(title: "Similar weather history")
         VStack(spacing: ClimateUI.Layout.rowSpacing) {
           ForEach(historyMatches.prefix(3)) { match in
-            GlassTile(cornerRadius: 18) {
+            GlassTile(cornerRadius: ClimateUI.Radius.selection) {
               HStack {
                 Text(match.assignment.date, format: .dateTime.month().day())
                   .climateText(.bodyStrong)
@@ -254,7 +263,7 @@ private struct WeatherMetricView: View {
   var icon: String
 
   var body: some View {
-    GlassTile(cornerRadius: 20) {
+    GlassTile(cornerRadius: ClimateUI.Radius.tileDense) {
       Label(title, systemImage: icon)
         .climateText(.detailStrong, color: ClimateUI.Palette.textSecondary)
       Text(value)

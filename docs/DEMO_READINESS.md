@@ -14,15 +14,31 @@ This readiness snapshot was taken on March 13, 2026 for Johnny's keynote dry run
 
 ## Benchmark snapshot
 
-Latest simulator benchmark run on `iPhone 16`:
+Reference physical-device `Debug` benchmark run on `iPhone 15 Pro Max` running `iOS 26.0.1` on March 13, 2026:
 
-- `launch_to_weather_root`: mean `3977.1 ms`
-- `weather_to_wardrobe_first_load`: mean `3047.3 ms`
-- `weather_to_planner_first_load`: mean `3169.4 ms`
-- `weather_to_import_first_load`: mean `2924.8 ms`
-- `save_new_wardrobe_item`: mean `2356.3 ms`
-- `import_tom_ford_fixture`: mean `1555.9 ms`
-- `save_day_assignment_and_note`: mean `1673.1 ms`
+- `launch_to_weather_root`: `OUTPERFORMING`, mean `2535.0 ms`, target `3500 ms`, ceiling `4250 ms`
+- `weather_to_wardrobe_first_load`: `OUTPERFORMING`, mean `2619.3 ms`, target `2750 ms`, ceiling `3300 ms`
+- `weather_to_planner_first_load`: `OUTPERFORMING`, mean `2436.5 ms`, target `2900 ms`, ceiling `3400 ms`
+- `weather_to_import_first_load`: `OUTPERFORMING`, mean `2364.8 ms`, target `2600 ms`, ceiling `3150 ms`
+- `save_new_wardrobe_item`: `MEETING`, mean `2118.5 ms`, target `2000 ms`, ceiling `2500 ms`
+- `import_tom_ford_fixture`: `MEETING`, mean `1587.4 ms`, target `1400 ms`, ceiling `1800 ms`
+- `save_day_assignment_and_note`: `MEETING`, mean `1805.9 ms`, target `1500 ms`, ceiling `1900 ms`
+
+Current benchmark verdict:
+
+- `OUTPERFORMING`: `4`
+- `MEETING`: `3`
+- `UNDERPERFORMING`: `0`
+
+Latest simulator screening run on `iPhone 16` on March 13, 2026:
+
+- `launch_to_weather_root`: `MEETING`, mean `4024.9 ms`
+- `weather_to_wardrobe_first_load`: `MEETING`, mean `3034.4 ms`
+- `weather_to_planner_first_load`: `MEETING`, mean `3173.3 ms`
+- `weather_to_import_first_load`: `MEETING`, mean `2890.1 ms`
+- `save_new_wardrobe_item`: `MEETING`, mean `2342.0 ms`
+- `import_tom_ford_fixture`: `MEETING`, mean `1538.0 ms`
+- `save_day_assignment_and_note`: `MEETING`, mean `1686.7 ms`
 
 ## Verification commands
 
@@ -55,6 +71,18 @@ xcodebuild test \
   -destination 'platform=iOS Simulator,name=iPhone 16' \
   -only-testing:ClimateClosetUITests/ClimateClosetBenchmarks/testDocumentationScreenshots \
   CODE_SIGNING_ALLOWED=NO
+
+xcrun xctrace list devices
+
+xcodebuild test \
+  -project ClimateCloset.xcodeproj \
+  -scheme ClimateCloset \
+  -destination 'id=<physical-device-id>' \
+  -only-testing:ClimateClosetUITests/ClimateClosetBenchmarks/testLaunchBenchmark \
+  -only-testing:ClimateClosetUITests/ClimateClosetBenchmarks/testTabSwitchBenchmarks \
+  -only-testing:ClimateClosetUITests/ClimateClosetBenchmarks/testAddWardrobeItemBenchmark \
+  -only-testing:ClimateClosetUITests/ClimateClosetBenchmarks/testImportBenchmark \
+  -only-testing:ClimateClosetUITests/ClimateClosetBenchmarks/testSaveDayBenchmark
 ```
 
 ## Dry-run checklist

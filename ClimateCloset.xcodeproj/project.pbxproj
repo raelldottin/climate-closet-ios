@@ -89,6 +89,7 @@
 		AA000000000000000000001C /* ClimateClosetUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ClimateClosetUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		AA000000000000000000001D /* ClimateClosetBenchmarks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClimateClosetBenchmarks.swift; sourceTree = "<group>"; };
 		AA000000000000000000001E /* AppVersion.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppVersion.xcconfig; sourceTree = "<group>"; };
+		AA000000000000000000001F /* Tests.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Tests.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -205,6 +206,7 @@
 			children = (
 				AA0000000000000000000019 /* App.xcconfig */,
 				AA000000000000000000001E /* AppVersion.xcconfig */,
+				AA000000000000000000001F /* Tests.xcconfig */,
 				AA000000000000000000001A /* Local.xcconfig.example */,
 			);
 			path = Config;
@@ -572,11 +574,11 @@
 		};
 		AA00000000000000000000B4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA000000000000000000001F /* Tests.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CODE_SIGN_STYLE = Automatic;
+					GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateClosetTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -591,11 +593,11 @@
 		};
 		AA00000000000000000000B5 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA000000000000000000001F /* Tests.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CODE_SIGN_STYLE = Automatic;
+					GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateClosetTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -610,11 +612,11 @@
 		};
 		AA00000000000000000000B6 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA000000000000000000001F /* Tests.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CODE_SIGN_STYLE = Automatic;
+					GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateClosetIntegrationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -629,11 +631,11 @@
 		};
 		AA00000000000000000000B7 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA000000000000000000001F /* Tests.xcconfig */;
 			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
+					BUNDLE_LOADER = "$(TEST_HOST)";
+					CODE_SIGN_STYLE = Automatic;
+					GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateClosetIntegrationTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -648,10 +650,10 @@
 		};
 		AA00000000000000000000B8 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA000000000000000000001F /* Tests.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
+					CODE_SIGN_STYLE = Automatic;
+					GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateClosetUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -665,10 +667,10 @@
 		};
 		AA00000000000000000000B9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = AA000000000000000000001F /* Tests.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = "";
-				GENERATE_INFOPLIST_FILE = YES;
+					CODE_SIGN_STYLE = Automatic;
+					GENERATE_INFOPLIST_FILE = YES;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.raelldottin.ClimateClosetUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
